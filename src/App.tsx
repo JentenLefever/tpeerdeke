@@ -97,9 +97,11 @@ function Hero({ vandaag }: { vandaag: number | null }) {
             )}
           </div>
         </div>
-        <div className="relative md:col-span-5">
-          <Foto label="[Foto gevel of terras]" className="aspect-[4/5] w-full md:mt-16" />
-          <Foto label="[Foto detail: pintje]" variant="licht" className="absolute -bottom-10 -left-8 hidden aspect-square w-40 shadow-xl md:block" />
+        <div className="md:col-span-5">
+          <div className="relative md:mt-16">
+            <Foto label="[Foto gevel of terras]" className="aspect-[4/5] w-full" />
+            <Foto label="[Foto pintje]" variant="licht" className="absolute -bottom-10 -left-12 hidden aspect-square w-44 shadow-xl md:block" />
+          </div>
         </div>
       </div>
     </section>
