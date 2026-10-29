@@ -71,13 +71,37 @@ function Btn({ href, children, dark = false, ext = false }: { href: string; chil
   );
 }
 
-/* Bewuste plaatshouder tot er echte foto's zijn */
-function Foto({ label, tint, mode = 'parallax', shade = false }: { label: string; tint: string; mode?: 'parallax' | 'zoom' | 'static'; shade?: boolean }) {
+// Gegenereerde sfeerbeelden (WebP, meerdere breedtes). Geen echte foto's van de zaak.
+const IMG: Record<string, { w: number[]; alt: string }> = {
+  hero: { w: [480, 800, 1280], alt: 'Zonnig terras met houten bistrostoelen op een binnenplein' },
+  'hero-m': { w: [480, 720], alt: 'Zonnig terras met houten bistrostoelen op een binnenplein' },
+  pintje: { w: [480, 800, 864], alt: 'Vers getapt pintje op een houten tafel' },
+  interieur: { w: [480, 800, 864], alt: 'Gezellig interieur met houten toog en warm licht' },
+  koffie: { w: [480, 800, 1152], alt: 'Koffie met een koekje op een houten tafel' },
+  terras: { w: [480, 800, 1280], alt: 'Terras met twee pintjes, mensen in de zon op de achtergrond' },
+  toog: { w: [480, 800, 1152], alt: 'Koperen biertap en glazen op de toog' },
+};
+const srcSet = (n: string) => IMG[n].w.map((w) => `/img/${n}-${w}.webp ${w}w`).join(', ');
+const src = (n: string) => `/img/${n}-${IMG[n].w[IMG[n].w.length - 1]}.webp`;
+
+function Foto({ img, mobile, sizes = '100vw', mode = 'parallax', shade = false, eager = false, decorative = false }: { img: string; mobile?: string; sizes?: string; mode?: 'parallax' | 'zoom' | 'static'; shade?: boolean; eager?: boolean; decorative?: boolean }) {
   const data = mode === 'parallax' ? { 'data-parallax': '' } : mode === 'zoom' ? { 'data-zoom': '' } : {};
   return (
-    <figure className={`ph ph--${tint} ${shade ? 'shade' : ''}`} style={{ margin: 0 }} role="img" aria-label={`Plaatshouder: ${label}`} {...data}>
-      <div className="ph__m" />
-      <figcaption className="ph__cap">{label}</figcaption>
+    <figure className={`ph ${shade ? 'shade' : ''}`} style={{ margin: 0 }} {...data}>
+      <div className="ph__m">
+        <picture>
+          {mobile && <source media="(max-width: 767px)" srcSet={srcSet(mobile)} sizes="100vw" />}
+          <img
+            src={src(img)}
+            srcSet={srcSet(img)}
+            sizes={sizes}
+            alt={decorative ? '' : IMG[img].alt}
+            loading={eager ? 'eager' : 'lazy'}
+            decoding={eager ? 'sync' : 'async'}
+            {...(eager ? { fetchPriority: 'high' as const } : {})}
+          />
+        </picture>
+      </div>
     </figure>
   );
 }
@@ -195,7 +219,7 @@ function Header() {
             </ul>
             <div className="menu__aside">
               <div className="menu__img">
-                <Foto label="[Foto toog]" tint="toog" mode="static" />
+                <Foto img="toog" mode="static" sizes="360px" decorative />
               </div>
               <div className="menu__meta">
                 <span className="eyebrow dim">Taverne in Het Pand</span>
@@ -215,11 +239,37 @@ function Header() {
   );
 }
 
+function brusselsMinuten(): number {
+  const [h, m] = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Brussels' }).format(new Date()).split(':').map(Number);
+  return (h % 24) * 60 + m;
+}
+
+function useNuOpen(tijd: string | null | undefined) {
+  const [open, setOpen] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (tijd === undefined) return;
+    const check = () => {
+      if (!tijd) return setOpen(false);
+      const [van, tot] = tijd.split(' – ').map((t) => {
+        const [h, m] = t.split(':').map(Number);
+        return h * 60 + m;
+      });
+      const nu = brusselsMinuten();
+      setOpen(nu >= van && nu < tot);
+    };
+    check();
+    const id = window.setInterval(check, 60000);
+    return () => window.clearInterval(id);
+  }, [tijd]);
+  return open;
+}
+
 function Hero({ vandaag }: { vandaag: number | null }) {
-  const u = vandaag === null ? null : uren.find((x) => x.js === vandaag);
+  const u = vandaag === null ? undefined : uren.find((x) => x.js === vandaag);
+  const open = useNuOpen(u ? u.tijd : undefined);
   return (
     <section id="top" className="hero">
-      <Foto label="[Foto gevel of terras]" tint="int" mode="static" shade />
+      <Foto img="hero" mobile="hero-m" mode="static" shade eager />
       <div className="hero__c">
         <p className="eyebrow" data-fade="">
           Taverne · Het Pand · Waregem
@@ -228,24 +278,26 @@ function Hero({ vandaag }: { vandaag: number | null }) {
           Een koffie, een pintje, iets om te eten.
         </Split>
       </div>
-      <span className="scrollhint" data-fade="">
-        Scroll
-      </span>
-      <div className="hero__bar">
-        <div>
-          <span className="eyebrow dim">Vandaag</span>
-          <strong>{u ? (u.tijd ?? 'Gesloten') : '—'}</strong>
+      <div className="hero__info">
+        <div className="hi">
+          <span className="hi__l">
+            Vandaag{open !== null && <span className="hi__s"> · {open ? 'Nu open' : 'Nu gesloten'}</span>}
+          </span>
+          <span className="hi__v">
+            {open !== null && <i className={`dot ${open ? 'is-open' : ''}`} aria-hidden="true" />}
+            {u ? (u.tijd ? u.tijd : 'Gesloten') : '—'}
+          </span>
         </div>
-        <div>
-          <span className="eyebrow dim">Adres</span>
-          <strong>{contact.street}</strong>
+        <div className="hi">
+          <span className="hi__l">Adres</span>
+          <span className="hi__v">Pand 255‑257, Waregem</span>
         </div>
-        <div>
-          <span className="eyebrow dim">Troeven</span>
-          <strong>Terras</strong>
+        <div className="hi hi--x">
+          <span className="hi__l">Terras</span>
+          <span className="hi__v">In Het Pand</span>
         </div>
-        <a href={contact.phoneHref} className="bel">
-          <span className="eyebrow">Bel ons</span>
+        <a href={contact.phoneHref} className="pill">
+          <span>Bel ons</span>
           <Arrow />
         </a>
       </div>
@@ -268,6 +320,9 @@ function Intro() {
           Bekijk de uren
         </Btn>
       </div>
+      <div className="intro__img">
+        <Foto img="koffie" mode="zoom" sizes="(max-width: 767px) 90vw, (max-width: 1024px) 60vw, 560px" />
+      </div>
     </section>
   );
 }
@@ -286,7 +341,7 @@ function Aanbod() {
   return (
     <section id="aanbod" className="split">
       <div className="split__img">
-        <Foto label="[Foto pintje]" tint="pint" />
+        <Foto img="pintje" sizes="(max-width: 1024px) 100vw, 50vw" />
       </div>
       <div className="split__txt">
         <div className="split__top">
@@ -311,7 +366,7 @@ function Aanbod() {
 function Terras() {
   return (
     <section className="full shade" aria-label="Terras">
-      <Foto label="[Foto terras]" tint="terras" />
+      <Foto img="terras" />
       <div className="full__c">
         <p className="eyebrow" data-reveal="">
           Terras
@@ -326,7 +381,7 @@ function Troeven() {
   return (
     <section id="troeven" className="split split--rev split--salie">
       <div className="split__img">
-        <Foto label="[Foto interieur]" tint="int" />
+        <Foto img="interieur" sizes="(max-width: 1024px) 100vw, 50vw" />
       </div>
       <div className="split__txt">
         <div className="split__top">
@@ -432,6 +487,25 @@ function Locatie() {
 
 function Footer() {
   const merk = '’t Peerdeke';
+  const markRef = useRef<HTMLDivElement>(null);
+  // Woordmerk exact binnen de container laten passen (nooit tegen of over de rand)
+  useEffect(() => {
+    const el = markRef.current;
+    if (!el) return;
+    const fit = () => {
+      el.style.fontSize = '100px';
+      el.style.width = 'max-content';
+      const nodig0 = el.offsetWidth;
+      el.style.width = '';
+      const beschikbaar = el.clientWidth;
+      const nodig = nodig0;
+      if (nodig > 0) el.style.fontSize = `${Math.floor((100 * beschikbaar) / nodig) - 1}px`;
+    };
+    fit();
+    document.fonts?.ready.then(fit);
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, []);
   return (
     <footer className="foot">
       <div className="foot__top">
@@ -460,7 +534,7 @@ function Footer() {
           ))}
         </div>
       </div>
-      <div className="foot__mark" data-chars="" aria-label={merk}>
+      <div ref={markRef} className="foot__mark" data-chars="" aria-label={merk}>
         {[...merk].map((c, i) => (
           <span key={i} className="w" aria-hidden="true">
             <span className="wi ci">{c === ' ' ? '\u00a0' : c}</span>

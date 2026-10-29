@@ -55,7 +55,7 @@ export function initMotion(): () => void {
     gsap.set('.hdr', { autoAlpha: 0, y: -10 });
     gsap.set('.hero .ph__m', { scale: 1.15 });
     gsap.set('.hero [data-fade]', { autoAlpha: 0, y: 16 });
-    gsap.set('.hero__bar', { yPercent: 30, autoAlpha: 0 });
+    gsap.set('.hero__info', { yPercent: 30, autoAlpha: 0 });
 
     // Preloader
     const pre = document.querySelector('.pre');
@@ -65,7 +65,7 @@ export function initMotion(): () => void {
       .to('.hero [data-split] .wi', { yPercent: 0, duration: 1.2, ease: 'power4.out', stagger: { amount: 0.4 } }, 0.2)
       .to('.hero [data-fade]', { autoAlpha: 1, y: 0, duration: 1, ease: 'power3.out', stagger: 0.08 }, 0.6)
       .to('.hdr', { autoAlpha: 1, y: 0, duration: 1, ease: 'power3.out' }, 0.5)
-      .to('.hero__bar', { yPercent: 0, autoAlpha: 1, duration: 1.1, ease: 'power3.out' }, 0.75)
+      .to('.hero__info', { yPercent: 0, autoAlpha: 1, duration: 1.1, ease: 'power3.out' }, 0.75)
       .set('.hdr', { clearProps: 'transform' });
 
     const done = () => {
