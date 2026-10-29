@@ -14,7 +14,7 @@
 html { scroll-behavior: smooth; }
 body { @apply font-sans bg-creme text-bruin antialiased; }
 
-
+@layer components {
 .placeholder-text {
   @apply inline-block rounded bg-goud/15 px-2 py-0.5 font-mono text-sm text-bruin-licht ring-1 ring-goud/40;
 }
@@ -67,3 +67,4 @@ body { @apply font-sans bg-creme text-bruin antialiased; }
   @apply font-sans text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-goud;
 }
 .rule { @apply h-px w-full bg-bruin/15; }
+}
