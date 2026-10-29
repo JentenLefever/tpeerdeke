@@ -1,4 +1,5 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { initMotion, lockScroll, motion } from './motion';
 
 const contact = {
   phoneDisplay: '056 60 44 64',
@@ -6,18 +7,27 @@ const contact = {
   email: 'vd.steve@hotmail.be',
   street: 'Pand 255-257',
   city: '8790 Waregem',
+  route: 'https://www.google.com/maps/dir/?api=1&destination=Pand+255,+8790+Waregem',
+  map: 'https://www.google.com/maps?q=Pand+255,+8790+Waregem&output=embed',
 };
 
-// Bron: hetpandwaregem.be/winkels-en-bedrijven/t-peerdeke/
-// index = Date.getDay() (0 = zondag)
-const uren: { dag: string; kort: string; tijd: string | null; js: number }[] = [
-  { dag: 'Maandag', kort: 'ma', tijd: '09:00 – 21:00', js: 1 },
-  { dag: 'Dinsdag', kort: 'di', tijd: null, js: 2 },
-  { dag: 'Woensdag', kort: 'wo', tijd: '09:00 – 21:00', js: 3 },
-  { dag: 'Donderdag', kort: 'do', tijd: '09:00 – 21:00', js: 4 },
-  { dag: 'Vrijdag', kort: 'vr', tijd: '09:00 – 22:00', js: 5 },
-  { dag: 'Zaterdag', kort: 'za', tijd: '09:00 – 21:00', js: 6 },
-  { dag: 'Zondag', kort: 'zo', tijd: '10:00 – 20:00', js: 0 },
+// Bron: hetpandwaregem.be/winkels-en-bedrijven/t-peerdeke/  (js = Date.getDay(), 0 = zondag)
+const uren: { dag: string; tijd: string | null; js: number }[] = [
+  { dag: 'Maandag', tijd: '09:00 – 21:00', js: 1 },
+  { dag: 'Dinsdag', tijd: null, js: 2 },
+  { dag: 'Woensdag', tijd: '09:00 – 21:00', js: 3 },
+  { dag: 'Donderdag', tijd: '09:00 – 21:00', js: 4 },
+  { dag: 'Vrijdag', tijd: '09:00 – 22:00', js: 5 },
+  { dag: 'Zaterdag', tijd: '09:00 – 21:00', js: 6 },
+  { dag: 'Zondag', tijd: '10:00 – 20:00', js: 0 },
+];
+
+const nav: [string, string][] = [
+  ['Over', '#over'],
+  ['Aanbod', '#aanbod'],
+  ['Troeven', '#troeven'],
+  ['Uren', '#uren'],
+  ['Locatie', '#locatie'],
 ];
 
 function brusselsDag(): number {
@@ -25,197 +35,319 @@ function brusselsDag(): number {
   return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(naam);
 }
 
-function useVandaag() {
-  const [dag, setDag] = useState<number | null>(null);
-  useEffect(() => setDag(brusselsDag()), []);
-  return dag;
+/* Titel die woord per woord uit een masker schuift */
+function Split({ as: Tag = 'h2', className, children, hero = false }: { as?: 'h1' | 'h2' | 'h3' | 'p'; className: string; children: string; hero?: boolean }) {
+  const woorden = children.split(' ');
+  return (
+    <Tag className={className} data-split="" data-hero={hero ? '' : undefined}>
+      {woorden.map((w, i) => (
+        <span key={i}>
+          <span className="w">
+            <span className="wi">{w}</span>
+          </span>
+          {i < woorden.length - 1 ? ' ' : ''}
+        </span>
+      ))}
+    </Tag>
+  );
 }
 
-function Foto({ label, variant = '', className = '' }: { label: string; variant?: '' | 'donker' | 'licht'; className?: string }) {
+function Arrow() {
   return (
-    <figure className={`foto grain ${variant ? `foto--${variant}` : ''} ${className}`} aria-label={`Plaatshouder: ${label}`}>
-      <figcaption>{label}</figcaption>
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M2 8h11M8.5 3.5 13 8l-4.5 4.5" stroke="currentColor" strokeWidth="1.3" />
+    </svg>
+  );
+}
+
+function Btn({ href, children, dark = false, ext = false }: { href: string; children: ReactNode; dark?: boolean; ext?: boolean }) {
+  return (
+    <a href={href} className={`btn ${dark ? 'btn--dark' : ''}`} {...(ext ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+      <span className="btn__l">{children}</span>
+      <span className="btn__c">
+        <Arrow />
+      </span>
+    </a>
+  );
+}
+
+/* Bewuste plaatshouder tot er echte foto's zijn */
+function Foto({ label, tint, mode = 'parallax', shade = false }: { label: string; tint: string; mode?: 'parallax' | 'zoom' | 'static'; shade?: boolean }) {
+  const data = mode === 'parallax' ? { 'data-parallax': '' } : mode === 'zoom' ? { 'data-zoom': '' } : {};
+  return (
+    <figure className={`ph ph--${tint} ${shade ? 'shade' : ''}`} style={{ margin: 0 }} role="img" aria-label={`Plaatshouder: ${label}`} {...data}>
+      <div className="ph__m" />
+      <figcaption className="ph__cap">{label}</figcaption>
     </figure>
   );
 }
 
-function Header() {
-  const links = [
-    ['Over ons', '#over'],
-    ['Aanbod', '#aanbod'],
-    ['Uren', '#uren'],
-    ['Locatie', '#locatie'],
-    ['Contact', '#contact'],
-  ];
+function Preloader() {
   return (
-    <header className="absolute inset-x-0 top-0 z-20">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6 md:px-10">
-        <a href="#top" className="font-serif text-xl font-bold tracking-tight text-bruin">
-          ’t Peerdeke
-        </a>
-        <nav className="hidden gap-8 text-sm text-bruin-licht md:flex" aria-label="Hoofdmenu">
-          {links.map(([l, h]) => (
-            <a key={h} href={h} className="transition-colors hover:text-goud">
-              {l}
-            </a>
-          ))}
-        </nav>
-        <a href={contact.phoneHref} className="text-sm font-semibold text-bruin underline decoration-goud decoration-2 underline-offset-4 md:hidden">
-          Bel ons
-        </a>
+    <div className="pre" aria-hidden="true">
+      <div className="pre__row">
+        <div className="pre__half">
+          <span className="eyebrow">Koffie</span>
+        </div>
+        <div className="pre__mark">
+          <span className="t-s">’t Peerdeke</span>
+        </div>
+        <div className="pre__half">
+          <span className="eyebrow">Pintje</span>
+        </div>
       </div>
-    </header>
+      <p className="pre__line eyebrow">
+        <span style={{ display: 'block' }}>Het Pand · Waregem</span>
+      </p>
+    </div>
+  );
+}
+
+function Header() {
+  const [open, setOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [dark, setDark] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const togRef = useRef<HTMLButtonElement>(null);
+
+  // Verbergen bij naar beneden scrollen, tonen bij naar boven; donkerder over lichte secties
+  useEffect(() => {
+    let last = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const vh = window.innerHeight;
+      setDark(y > vh * 0.85);
+      if (Math.abs(y - last) > 6) {
+        setHidden(y > last && y > vh * 0.6);
+        last = y;
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Menu openen/sluiten met GSAP (hoogte + gestaffelde links)
+  useEffect(() => {
+    const el = menuRef.current;
+    if (!el) return;
+    const gsap = window.gsap;
+    const links = el.querySelectorAll('.menu__nav a, .menu__aside > *');
+    lockScroll(open);
+    if (gsap && motion.on) {
+      gsap.killTweensOf([el, links]);
+      if (open) {
+        gsap.set(el, { visibility: 'visible' });
+        gsap.to(el, { height: 'auto', duration: 0.7, ease: 'power3.inOut' });
+        gsap.fromTo(links, { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.7, ease: 'power3.out', stagger: 0.05, delay: 0.2 });
+      } else {
+        gsap.to(links, { autoAlpha: 0, duration: 0.2 });
+        gsap.to(el, { height: 0, duration: 0.55, ease: 'power3.inOut', onComplete: () => gsap.set(el, { visibility: 'hidden' }) });
+      }
+    } else {
+      el.style.height = open ? 'auto' : '0px';
+      el.style.visibility = open ? 'visible' : 'hidden';
+    }
+    if (open) el.querySelector<HTMLAnchorElement>('.menu__nav a')?.focus({ preventScroll: true });
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+        togRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  const cls = ['hdr', open && 'is-open', !open && hidden && 'is-hidden', dark && 'is-dark'].filter(Boolean).join(' ');
+
+  return (
+    <>
+      <div className={`scrim ${open ? 'is-on' : ''}`} onClick={() => setOpen(false)} aria-hidden="true" />
+      <header className={cls}>
+        <div className="hdr__in">
+          <a href={contact.phoneHref} className="hdr__call">
+            Bel ons
+          </a>
+          <a href="#top" className="hdr__logo" aria-label="’t Peerdeke, naar boven" onClick={() => setOpen(false)}>
+            ’t Peerdeke
+          </a>
+          <button ref={togRef} type="button" className="hdr__tog" aria-expanded={open} aria-controls="menu" aria-label={open ? 'Menu sluiten' : 'Menu openen'} onClick={() => setOpen((o) => !o)}>
+            <i />
+            <i />
+            <i />
+          </button>
+        </div>
+        <div id="menu" ref={menuRef} className={`menu ${open ? 'is-open' : ''}`} aria-hidden={!open}>
+          <div className="menu__in">
+            <ul className="menu__nav">
+              {nav.map(([label, href], i) => (
+                <li key={href}>
+                  <a href={href} className="t-s" onClick={() => setOpen(false)} tabIndex={open ? 0 : -1}>
+                    <small>0{i + 1}</small>
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <div className="menu__aside">
+              <div className="menu__img">
+                <Foto label="[Foto toog]" tint="toog" mode="static" />
+              </div>
+              <div className="menu__meta">
+                <span className="eyebrow dim">Taverne in Het Pand</span>
+                <span>
+                  {contact.street}, {contact.city}
+                </span>
+                <a href={contact.phoneHref} tabIndex={open ? 0 : -1}>
+                  {contact.phoneDisplay}
+                </a>
+                <span className="dim">Dinsdag gesloten</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+    </>
   );
 }
 
 function Hero({ vandaag }: { vandaag: number | null }) {
-  const vandaagUren = vandaag === null ? null : uren.find((u) => u.js === vandaag);
+  const u = vandaag === null ? null : uren.find((x) => x.js === vandaag);
   return (
-    <section id="top" className="grain relative overflow-hidden bg-creme pt-28 pb-20 md:pt-36 md:pb-28">
-      <div className="relative mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-12 md:px-10">
-        <div className="md:col-span-7 md:pt-10">
-          <p className="kicker">Taverne · Het Pand · Waregem</p>
-          <h1 className="mt-6 font-serif text-[2.9rem] leading-[1.02] font-medium tracking-tight text-bruin md:text-[5.2rem]">
-            Een koffie,
-            <br />
-            een pintje,
-            <br />
-            <em className="font-serif text-goud not-italic md:italic">iets om te eten.</em>
-          </h1>
-          <p className="mt-8 max-w-md text-lg leading-relaxed text-bruin-licht">
-            Taverne ’t Peerdeke ligt midden in Het Pand in Waregem. Met een terras, en vlot toegankelijk voor iedereen.
-          </p>
-          <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4 text-sm">
-            <a href={contact.phoneHref} className="bg-bruin px-6 py-3.5 font-semibold tracking-wide text-creme transition-colors hover:bg-goud">
-              {contact.phoneDisplay}
-            </a>
-            {vandaagUren && (
-              <p className="text-bruin-licht">
-                <span className="kicker mr-3 text-goud">Vandaag</span>
-                {vandaagUren.tijd ?? 'gesloten'}
-              </p>
-            )}
-          </div>
+    <section id="top" className="hero">
+      <Foto label="[Foto gevel of terras]" tint="int" mode="static" shade />
+      <div className="hero__c">
+        <p className="eyebrow" data-fade="">
+          Taverne · Het Pand · Waregem
+        </p>
+        <Split as="h1" className="t-xl" hero>
+          Een koffie, een pintje, iets om te eten.
+        </Split>
+      </div>
+      <span className="scrollhint" data-fade="">
+        Scroll
+      </span>
+      <div className="hero__bar">
+        <div>
+          <span className="eyebrow dim">Vandaag</span>
+          <strong>{u ? (u.tijd ?? 'Gesloten') : '—'}</strong>
         </div>
-        <div className="md:col-span-5">
-          <div className="relative md:mt-16">
-            <Foto label="[Foto gevel of terras]" className="aspect-[4/5] w-full" />
-            <Foto label="[Foto pintje]" variant="licht" className="absolute -bottom-10 -left-12 hidden aspect-square w-44 shadow-xl md:block" />
-          </div>
+        <div>
+          <span className="eyebrow dim">Adres</span>
+          <strong>{contact.street}</strong>
         </div>
+        <div>
+          <span className="eyebrow dim">Troeven</span>
+          <strong>Terras</strong>
+        </div>
+        <a href={contact.phoneHref} className="bel">
+          <span className="eyebrow">Bel ons</span>
+          <Arrow />
+        </a>
       </div>
     </section>
   );
 }
 
-function SectieKop({ nr, kicker, titel }: { nr: string; kicker: string; titel: ReactNode }) {
+function Intro() {
   return (
-    <div className="flex items-baseline gap-5">
-      <span className="font-serif text-sm text-goud">{nr}</span>
-      <div>
-        <p className="kicker">{kicker}</p>
-        <h2 className="mt-3 font-serif text-4xl leading-tight font-medium tracking-tight md:text-5xl">{titel}</h2>
+    <section id="over" className="wrap intro">
+      <p className="eyebrow" data-reveal="">
+        ’t Peerdeke
+      </p>
+      <Split className="t-m">Geniet van een koffie, een vers getapt pintje of bestel iets om je honger te stillen.</Split>
+      <div className="intro__q" data-reveal="">
+        <span className="todo">[Eigen verhaal: wie staat achter de toog, sinds wanneer]</span>
       </div>
-    </div>
-  );
-}
-
-function Over() {
-  return (
-    <section id="over" className="bg-creme py-24 md:py-32">
-      <div className="mx-auto grid max-w-6xl gap-14 px-6 md:grid-cols-12 md:px-10">
-        <div className="md:col-span-5 md:col-start-1">
-          <Foto label="[Foto interieur]" variant="donker" className="aspect-[3/4] w-full" />
-        </div>
-        <div className="md:col-span-6 md:col-start-7 md:pt-20">
-          <SectieKop nr="01" kicker="Over ons" titel={<>Een taverne zoals het hoort.</>} />
-          <div className="mt-8 space-y-5 text-lg leading-relaxed text-bruin-licht">
-            <p>
-              Even op adem komen tussen het winkelen door, afspreken met vrienden of rustig de krant lezen bij een koffie. ’t Peerdeke is er voor
-              iedereen die in Het Pand passeert.
-            </p>
-            <p>
-              <span className="placeholder-text">[Eigen verhaal: wie staat achter de toog, sinds wanneer]</span>
-            </p>
-          </div>
-        </div>
+      <div data-reveal="">
+        <Btn href="#uren" dark>
+          Bekijk de uren
+        </Btn>
       </div>
     </section>
   );
 }
 
 function Aanbod() {
-  const items = [
-    { titel: 'Koffie', tekst: 'Voor de start van de dag of als pauze tussen twee winkels door.' },
-    { titel: 'Van ’t vat', tekst: 'Een vers getapt pintje, binnen of op het terras.' },
-    { titel: 'Honger?', tekst: 'Bestel iets om je honger te stillen.' },
+  const items: [string, ReactNode][] = [
+    ['Koffie', 'Vanaf 9 uur ’s morgens. Op zondag vanaf 10 uur.'],
+    ['Van ’t vat', 'Een vers getapt pintje, binnen of op het terras.'],
+    [
+      'Honger?',
+      <>
+        Bestel iets om je honger te stillen. <span className="todo" style={{ marginTop: '0.75em' }}>[Menukaart]</span>
+      </>,
+    ],
   ];
   return (
-    <section id="aanbod" className="grain relative bg-zand py-24 md:py-32">
-      <div className="relative mx-auto max-w-6xl px-6 md:px-10">
-        <div className="grid gap-10 md:grid-cols-12">
-          <div className="md:col-span-5">
-            <SectieKop nr="02" kicker="Aanbod" titel={<>Wat mag het zijn?</>} />
-          </div>
-          <p className="max-w-md text-lg leading-relaxed text-bruin-licht md:col-span-5 md:col-start-8 md:pt-10">
-            Van de eerste koffie om 9 uur tot het laatste pintje ’s avonds.
+    <section id="aanbod" className="split">
+      <div className="split__img">
+        <Foto label="[Foto pintje]" tint="pint" />
+      </div>
+      <div className="split__txt">
+        <div className="split__top">
+          <p className="eyebrow" data-reveal="">
+            Aanbod
           </p>
+          <Split className="t-l">Koffie, pintje, honger.</Split>
         </div>
-
-        <div className="mt-16 border-t border-bruin/20">
-          {items.map((it, i) => (
-            <div key={it.titel} className="grid gap-3 border-b border-bruin/20 py-8 md:grid-cols-12 md:items-baseline">
-              <span className="font-serif text-sm text-goud md:col-span-1">{String(i + 1).padStart(2, '0')}</span>
-              <h3 className="font-serif text-3xl font-medium md:col-span-4 md:text-4xl">{it.titel}</h3>
-              <p className="text-bruin-licht md:col-span-6 md:col-start-7">{it.tekst}</p>
+        <div className="split__bottom">
+          {items.map(([t, p]) => (
+            <div key={t} className="item" data-reveal="">
+              <h3 className="t-xs">{t}</h3>
+              <p className="p">{p}</p>
             </div>
           ))}
-        </div>
-
-        <div className="mt-14 flex flex-col gap-6 border-2 border-dashed border-goud/60 p-8 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="kicker">Menukaart</p>
-            <p className="mt-2 font-serif text-2xl">
-              <span className="placeholder-text">[Menukaart]</span>
-            </p>
-            <p className="mt-2 text-sm text-bruin-licht">Plaatshouder: gerechten, dranken en prijzen aan te leveren door ’t Peerdeke.</p>
-          </div>
-          <a href={contact.phoneHref} className="self-start text-sm font-semibold underline decoration-goud decoration-2 underline-offset-4 md:self-auto">
-            Vragen? Bel {contact.phoneDisplay}
-          </a>
         </div>
       </div>
     </section>
   );
 }
 
-function Troeven() {
-  const troeven = [
-    { titel: 'Terras', tekst: 'Bij goed weer zit je buiten, midden in de drukte van Het Pand.' },
-    { titel: 'Rolstoeltoegankelijk', tekst: 'Iedereen is welkom en komt vlot binnen.' },
-    { titel: 'In Het Pand', tekst: 'Winkelen, iets drinken en iets eten: allemaal op één plek.' },
-  ];
+function Terras() {
   return (
-    <section className="bg-creme py-24 md:py-32">
-      <div className="mx-auto grid max-w-6xl gap-16 px-6 md:grid-cols-12 md:px-10">
-        <div className="md:col-span-6">
-          <SectieKop nr="03" kicker="Troeven" titel={<>Waarom bij ons?</>} />
-          <ul className="mt-12 space-y-10">
-            {troeven.map((t) => (
-              <li key={t.titel} className="grid grid-cols-[2.5rem_1fr] gap-4">
-                <span aria-hidden className="mt-3 h-px w-8 bg-goud" />
-                <div>
-                  <h3 className="font-serif text-2xl font-medium md:text-3xl">{t.titel}</h3>
-                  <p className="mt-2 text-bruin-licht">{t.tekst}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
+    <section className="full shade" aria-label="Terras">
+      <Foto label="[Foto terras]" tint="terras" />
+      <div className="full__c">
+        <p className="eyebrow" data-reveal="">
+          Terras
+        </p>
+        <Split className="t-xl">Buiten zitten in Het Pand.</Split>
+      </div>
+    </section>
+  );
+}
+
+function Troeven() {
+  return (
+    <section id="troeven" className="split split--rev split--salie">
+      <div className="split__img">
+        <Foto label="[Foto interieur]" tint="int" />
+      </div>
+      <div className="split__txt">
+        <div className="split__top">
+          <p className="eyebrow" data-reveal="">
+            Goed om te weten
+          </p>
+          <Split className="t-l">Binnen, buiten, voor iedereen.</Split>
         </div>
-        <div className="grid grid-cols-5 gap-4 md:col-span-5 md:col-start-8">
-          <Foto label="[Foto terras]" className="col-span-5 aspect-[4/3]" />
-          <Foto label="[Foto toog]" variant="donker" className="col-span-3 aspect-square" />
-          <Foto label="[Foto Het Pand]" variant="licht" className="col-span-2 mt-10 aspect-[3/4]" />
+        <div className="split__bottom">
+          <div className="item" data-reveal="">
+            <h3 className="t-xs">Terras</h3>
+            <p className="p">Bij goed weer zit je buiten.</p>
+          </div>
+          <div className="item" data-reveal="">
+            <h3 className="t-xs">Toegankelijk</h3>
+            <p className="p">Rolstoeltoegankelijk.</p>
+          </div>
+          <div className="item" data-reveal="">
+            <h3 className="t-xs">Het Pand</h3>
+            <p className="p">{contact.street}, in Het Pand in Waregem.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -224,142 +356,141 @@ function Troeven() {
 
 function Uren({ vandaag }: { vandaag: number | null }) {
   return (
-    <section id="uren" className="grain relative bg-bruin py-24 text-creme md:py-32">
-      <div className="relative mx-auto grid max-w-6xl gap-14 px-6 md:grid-cols-12 md:px-10">
-        <div className="md:col-span-4">
-          <div className="flex items-baseline gap-5">
-            <span className="font-serif text-sm text-goud-licht">04</span>
-            <div>
-              <p className="kicker text-goud-licht">Openingsuren</p>
-              <h2 className="mt-3 font-serif text-4xl leading-tight font-medium md:text-5xl">Wanneer ben je welkom?</h2>
-              <p className="mt-6 text-creme/70">Op dinsdag is ’t Peerdeke gesloten.</p>
-            </div>
-          </div>
+    <section id="uren" className="wrap uren">
+      <div className="uren__head">
+        <p className="eyebrow" data-reveal="">
+          Openingsuren
+        </p>
+        <Split className="t-l">Zes dagen open.</Split>
+        <p className="p dim" data-reveal="">
+          Dinsdag is ’t Peerdeke gesloten.
+        </p>
+        <div data-reveal="">
+          <Btn href={contact.phoneHref} dark>
+            {contact.phoneDisplay}
+          </Btn>
         </div>
-        <dl className="md:col-span-7 md:col-start-6">
-          {uren.map((u) => {
-            const isVandaag = u.js === vandaag;
-            return (
-              <div key={u.dag} className={`flex items-baseline gap-4 border-b border-creme/15 py-4 ${isVandaag ? 'text-goud-licht' : ''}`}>
-                <dt className="font-serif text-xl md:text-2xl">
-                  {u.dag}
-                  {isVandaag && <span className="ml-3 align-middle font-sans text-[0.65rem] tracking-[0.2em] uppercase">vandaag</span>}
-                </dt>
-                <span aria-hidden className="flex-1 translate-y-[-4px] border-b border-dotted border-creme/30" />
-                <dd className={`tabular-nums ${u.tijd ? '' : 'italic text-creme/50'}`}>{u.tijd ?? 'gesloten'}</dd>
-              </div>
-            );
-          })}
-        </dl>
       </div>
+      <ul className="uren__list" data-rows="">
+        {uren.map((u) => (
+          <li key={u.dag} className={u.js === vandaag ? 'nu' : ''}>
+            <span className="d">{u.dag}</span>
+            <span className={`u ${u.tijd ? '' : 'dicht'}`}>{u.tijd ?? 'Gesloten'}</span>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
 
 function Locatie() {
   return (
-    <section id="locatie" className="bg-creme py-24 md:py-32">
-      <div className="mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-12 md:px-10">
-        <div className="md:col-span-4">
-          <SectieKop nr="05" kicker="Locatie" titel={<>Je vindt ons in Het Pand.</>} />
-          <address className="mt-8 text-lg leading-relaxed not-italic text-bruin-licht">
-            {contact.street}
-            <br />
-            {contact.city}
-          </address>
-          <a
-            href="https://www.google.com/maps/dir/?api=1&destination=Pand+255,+8790+Waregem"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-6 inline-block text-sm font-semibold underline decoration-goud decoration-2 underline-offset-4"
-          >
-            Route plannen
-          </a>
+    <section id="locatie" className="loc">
+      <div className="loc__txt">
+        <div style={{ display: 'grid', gap: '1.75em' }}>
+          <p className="eyebrow" data-reveal="">
+            Locatie & contact
+          </p>
+          <Split className="t-l">In Het Pand, Waregem.</Split>
         </div>
-        <div className="md:col-span-7 md:col-start-6">
-          <div className="overflow-hidden border border-bruin/15 bg-zand p-2">
-            <iframe
-              title="Kaart: Pand 255, 8790 Waregem"
-              src="https://www.google.com/maps?q=Pand+255,+8790+Waregem&output=embed"
-              className="block h-[360px] w-full md:h-[440px]"
-              style={{ filter: 'sepia(.25) saturate(.85)' }}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
+        <div className="loc__rows" data-rows="">
+          <div>
+            <span className="eyebrow dim">Adres</span>
+            <span>
+              {contact.street}
+              <br />
+              {contact.city}
+            </span>
           </div>
+          <div>
+            <span className="eyebrow dim">Telefoon</span>
+            <a href={contact.phoneHref}>{contact.phoneDisplay}</a>
+          </div>
+          <div>
+            <span className="eyebrow dim">E-mail</span>
+            <a href={`mailto:${contact.email}`}>{contact.email}</a>
+          </div>
+          <div>
+            <span className="eyebrow dim">Socials</span>
+            <span>
+              <span className="todo">[Facebook / Instagram]</span>
+            </span>
+          </div>
+        </div>
+        <div data-reveal="">
+          <Btn href={contact.route} dark ext>
+            Plan je route
+          </Btn>
         </div>
       </div>
-    </section>
-  );
-}
-
-function Contact() {
-  return (
-    <section id="contact" className="grain relative bg-zand py-24 md:py-32">
-      <div className="relative mx-auto max-w-6xl px-6 md:px-10">
-        <SectieKop nr="06" kicker="Contact" titel={<>Even bellen of mailen?</>} />
-        <div className="mt-14 grid gap-10 md:grid-cols-12">
-          <a href={contact.phoneHref} className="group md:col-span-6">
-            <p className="kicker">Telefoon</p>
-            <p className="mt-3 font-serif text-4xl font-medium transition-colors group-hover:text-goud md:text-6xl">{contact.phoneDisplay}</p>
-          </a>
-          <div className="space-y-8 md:col-span-5 md:col-start-8 md:pt-2">
-            <div>
-              <p className="kicker">E-mail</p>
-              <a href={`mailto:${contact.email}`} className="mt-2 block text-lg underline decoration-goud/60 underline-offset-4 hover:text-goud">
-                {contact.email}
-              </a>
-            </div>
-            <div>
-              <p className="kicker">Adres</p>
-              <p className="mt-2 text-lg">
-                {contact.street}, {contact.city}
-              </p>
-            </div>
-            <div>
-              <p className="kicker">Sociale media</p>
-              <p className="mt-2">
-                <span className="placeholder-text">[Facebook / Instagram]</span>
-              </p>
-            </div>
-          </div>
-        </div>
+      <div className="loc__map" data-zoom="">
+        <iframe title="Kaart: ’t Peerdeke, Pand 255-257, Waregem" src={contact.map} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
       </div>
     </section>
   );
 }
 
 function Footer() {
+  const merk = '’t Peerdeke';
   return (
-    <footer className="bg-bruin text-creme/70">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-12 text-sm md:flex-row md:items-end md:justify-between md:px-10">
+    <footer className="foot">
+      <div className="foot__top">
         <div>
-          <p className="font-serif text-2xl text-creme">’t Peerdeke</p>
-          <p className="mt-2">
-            Taverne in Het Pand · {contact.street}, {contact.city}
-          </p>
+          <p className="eyebrow">Adres</p>
+          <span>{contact.street}</span>
+          <span>{contact.city}</span>
         </div>
-        <p>
-          © {new Date().getFullYear()} ’t Peerdeke · <span className="placeholder-text !text-creme/80 !bg-creme/10">[Ondernemingsnummer]</span>
-        </p>
+        <div>
+          <p className="eyebrow">Contact</p>
+          <a href={contact.phoneHref}>{contact.phoneDisplay}</a>
+          <a href={`mailto:${contact.email}`}>{contact.email}</a>
+        </div>
+        <div>
+          <p className="eyebrow">Uren</p>
+          <span>Ma, wo, do, za 09–21</span>
+          <span>Vr 09–22 · Zo 10–20</span>
+          <span>Di gesloten</span>
+        </div>
+        <div>
+          <p className="eyebrow">Menu</p>
+          {nav.map(([l, h]) => (
+            <a key={h} href={h}>
+              {l}
+            </a>
+          ))}
+        </div>
+      </div>
+      <div className="foot__mark" data-chars="" aria-label={merk}>
+        {[...merk].map((c, i) => (
+          <span key={i} className="w" aria-hidden="true">
+            <span className="wi ci">{c === ' ' ? '\u00a0' : c}</span>
+          </span>
+        ))}
+      </div>
+      <div className="foot__bot">
+        <span>© {new Date().getFullYear()} ’t Peerdeke · Taverne in Het Pand</span>
+        <span>[Ondernemingsnummer]</span>
       </div>
     </footer>
   );
 }
 
 export default function App() {
-  const vandaag = useVandaag();
+  const [vandaag, setVandaag] = useState<number | null>(null);
+  useEffect(() => setVandaag(brusselsDag()), []);
+  useEffect(() => initMotion(), []);
   return (
     <>
+      <Preloader />
       <Header />
       <main>
         <Hero vandaag={vandaag} />
-        <Over />
+        <Intro />
         <Aanbod />
+        <Terras />
         <Troeven />
         <Uren vandaag={vandaag} />
         <Locatie />
-        <Contact />
       </main>
       <Footer />
     </>
