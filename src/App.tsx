@@ -84,9 +84,8 @@ const IMG: Record<string, { w: number[]; alt: string }> = {
   uithangbord: { w: [480, 800, 1086], alt: 'Uithangbord van taverne ’t Peerdeke met de paardenkop' },
   wafels: { w: [480, 800, 1086], alt: 'Twee Brusselse wafels met poedersuiker, vanille-ijs en slagroom' },
   interieur: { w: [480, 800, 1448], alt: 'Interieur met lederen stoelen, houten tafels en grote ramen naar het plein' },
-  terras: { w: [480, 800, 1156], alt: 'Gasten op het terras in Het Pand onder de parasols' },
-  toog: { w: [480, 800], alt: 'Houten toog met biertap en glazenrekken' },
-  'toog-l': { w: [800, 1086, 1600], alt: 'De houten toog van ’t Peerdeke met biertap, koffiemachine en rekken vol glazen' },
+  toog: { w: [480, 800, 1080], alt: 'Houten toog van ’t Peerdeke met biertap, rekken vol glazen en hanglampen' },
+  'toog-l': { w: [800, 1280, 1824], alt: 'De houten toog van ’t Peerdeke met biertap, koffiemachine en rekken vol glazen' },
 };
 const srcSet = (n: string) => IMG[n].w.map((w) => `/img/${n}-${w}.webp ${w}w`).join(', ');
 const src = (n: string) => `/img/${n}-${IMG[n].w[IMG[n].w.length - 1]}.webp`;

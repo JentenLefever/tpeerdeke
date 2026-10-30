@@ -305,13 +305,14 @@ html:not(.anim) .pre { display: none; }
 .full--toog .ph__m img { object-position: 50% 45%; }
 .full--toog .full__c::before {
   content: ''; position: absolute; z-index: -1; left: 0; bottom: 0; width: min(60em, 100%); height: calc(100% + 8em);
-  background: radial-gradient(ellipse 70% 75% at 0% 100%, rgba(18,13,10,.66) 0%, rgba(18,13,10,.38) 45%, rgba(18,13,10,0) 100%);
+  background: radial-gradient(ellipse 75% 80% at 0% 100%, rgba(18,13,10,.78) 0%, rgba(18,13,10,.48) 45%, rgba(18,13,10,0) 100%);
   pointer-events: none;
 }
-.full__slogan { margin: 0; font-size: 1.25em; line-height: 1.3; max-width: 24em; opacity: .92; }
+.full__slogan { margin: 0; font-size: 1.25em; line-height: 1.3; max-width: 24em; opacity: .95; }
+.full--toog .full__c { text-shadow: 0 1px 18px rgba(18,13,10,.35); }
 @media (max-width: 767px) {
   .full--toog .ph__m img { object-position: 50% 60%; }
-  .full--toog .full__c::before { width: 100%; height: calc(100% + 10em); background: linear-gradient(to top, rgba(18,13,10,.7), rgba(18,13,10,.35) 55%, rgba(18,13,10,0)); }
+  .full--toog .full__c::before { width: 100%; height: calc(100% + 10em); background: linear-gradient(to top, rgba(18,13,10,.78), rgba(18,13,10,.42) 55%, rgba(18,13,10,0)); }
   .full__slogan { font-size: 1.0625em; }
 }
 

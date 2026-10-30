@@ -155,8 +155,10 @@ export function initMotion(): () => void {
     gsap.utils.toArray('[data-parallax]').forEach((el: Element) => {
       const media = el.querySelector('.ph__m');
       if (!media) return;
-      gsap.fromTo(media, { yPercent: -8, scale: 1.15 }, {
-        yPercent: 8, scale: 1.15, ease: 'none',
+      // Toog-foto is max. 1824 px breed: geen extra zoom, zodat ze ook op brede schermen scherp blijft
+      const s = el.closest('.full--toog') ? 1.02 : 1.15;
+      gsap.fromTo(media, { yPercent: -8, scale: s }, {
+        yPercent: 8, scale: s, ease: 'none',
         scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true },
       });
     });
