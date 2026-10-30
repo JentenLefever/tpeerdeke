@@ -395,6 +395,100 @@ function Aanbod() {
   );
 }
 
+/* Kaart, lichte variant (ontwerpalternatief ter vergelijking): eigen state, eigen ids (prefix "licht-") */
+function KaartLicht() {
+  const [actief, setActief] = useState(0);
+  const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
+  const lijstRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  const kies = (i: number, focus = false) => {
+    const n = (i + KAART.length) % KAART.length;
+    setActief(n);
+    const tab = tabsRef.current[n];
+    if (focus) tab?.focus({ preventScroll: true });
+    const lijst = lijstRef.current;
+    if (tab && lijst && lijst.scrollWidth > lijst.clientWidth) {
+      lijst.scrollTo({ left: tab.offsetLeft - (lijst.clientWidth - tab.offsetWidth) / 2, behavior: 'smooth' });
+    }
+  };
+
+  const onKey = (e: ReactKeyboardEvent) => {
+    const map: Record<string, number> = { ArrowRight: actief + 1, ArrowLeft: actief - 1, Home: 0, End: KAART.length - 1 };
+    if (e.key in map) {
+      e.preventDefault();
+      kies(map[e.key], true);
+    }
+  };
+
+  useEffect(() => {
+    const g = window.gsap;
+    if (!motion.on || !g || !panelRef.current) return;
+    const els = panelRef.current.querySelectorAll('.kl__groep-kop, .kl__item');
+    g.fromTo(els, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', stagger: { amount: Math.min(0.5, els.length * 0.025) }, overwrite: true });
+  }, [actief]);
+
+  const r = KAART[actief];
+  return (
+    <section id="kaart-licht" className="kl" aria-label="De kaart (lichte versie)">
+      <div className="kl__in wrap">
+        <header className="kl__head">
+          <p className="kl__eyebrow" data-reveal="">
+            <span>De kaart</span>
+          </p>
+          <Split className="t-l kl__titel">Iets om je honger te stillen.</Split>
+          <p className="kl__note" data-reveal="">
+            Prijzen in euro, onder voorbehoud van wijzigingen
+          </p>
+        </header>
+        <div className="kl__tabs" ref={lijstRef} role="tablist" aria-label="Rubrieken van de kaart (lichte versie)" onKeyDown={onKey}>
+          {KAART.map((k, i) => (
+            <button
+              key={k.id}
+              ref={(el) => {
+                tabsRef.current[i] = el;
+              }}
+              type="button"
+              role="tab"
+              id={`licht-tab-${k.id}`}
+              aria-selected={i === actief}
+              aria-controls={`licht-paneel-${k.id}`}
+              tabIndex={i === actief ? 0 : -1}
+              className={`kl__tab ${i === actief ? 'is-on' : ''}`}
+              onClick={() => kies(i)}
+            >
+              {k.tab}
+            </button>
+          ))}
+        </div>
+        <div ref={panelRef} className="kl__panel" role="tabpanel" id={`licht-paneel-${r.id}`} aria-labelledby={`licht-tab-${r.id}`} tabIndex={0}>
+          <p className="kl__intro">{r.intro}</p>
+          {r.groepen.map((gr) => (
+            <div key={gr.titel} className="kl__groep">
+              <h3 className="kl__groep-kop">
+                <span>{gr.titel}</span>
+              </h3>
+              <ul className="kl__lijst">
+                {gr.items.map((g) => (
+                  <li key={g.n} className="kl__item">
+                    <div className="kl__r">
+                      <span className="kl__n">{g.n}</span>
+                      <span className="kl__p">
+                        <span className="sr">Prijs: </span>€&nbsp;{g.p}
+                      </span>
+                    </div>
+                    {g.o && <p className="kl__o">{g.o}</p>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* Kaart met tabs (WAI-ARIA tabs-patroon: pijltjes, Home/End, roving tabindex) */
 function Kaart() {
   const [actief, setActief] = useState(0);
@@ -724,6 +818,7 @@ export default function App() {
         <Intro />
         <Aanbod />
         <Kaart />
+        <KaartLicht />
         <Toog />
         <Troeven />
         <Uren vandaag={vandaag} />
