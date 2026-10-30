@@ -1,0 +1,86 @@
+// Voorbeeldkaart voor de pitch: fictieve gerechten en prijzen ter illustratie (niet de echte kaart).
+export type Gerecht = { n: string; p: string; o?: string };
+export type Rubriek = { id: string; tab: string; intro: string; items: Gerecht[] };
+
+export const KAART: Rubriek[] = [
+  {
+    id: 'ontbijt',
+    tab: 'Ontbijt',
+    intro: 'Elke openingsdag tot 11:30.',
+    items: [
+      { n: 'Ontbijt ’t Peerdeke', p: '16,50', o: 'Koffie of thee, vers sinaasappelsap, croissant, boterkoek, brood met beleg en een gekookt eitje' },
+      { n: 'Klein ontbijt', p: '10,50', o: 'Koffie of thee, croissant en een pistolet met confituur' },
+      { n: 'Spek met eieren', p: '12,00', o: 'Drie eieren, krokant spek en bruin brood' },
+      { n: 'Omelet naar keuze', p: '12,50', o: 'Natuur, ham, kaas of champignons, met brood' },
+      { n: 'Yoghurt met granola', p: '8,50', o: 'Met vers fruit en een lepel honing' },
+      { n: 'Croissant / boterkoek', p: '2,80 / 3,00' },
+    ],
+  },
+  {
+    id: 'lunch',
+    tab: 'Lunch & snacks',
+    intro: 'Van de middag tot de late namiddag.',
+    items: [
+      { n: 'Soep van de dag', p: '6,00', o: 'Met brood en boter' },
+      { n: 'Croque monsieur', p: '9,50 / 14,00', o: 'Enkel of dubbel, met een fris slaatje' },
+      { n: 'Croque Hawaï of Madame', p: '11,00', o: 'Met ananas of met een spiegelei' },
+      { n: 'Toast champignons', p: '13,50', o: 'Romige champignonsaus op geroosterd brood' },
+      { n: 'Kaaskroketten (2 st.)', p: '17,50', o: 'Met slaatje, citroen en brood' },
+      { n: 'Garnaalkroketten (2 st.)', p: '22,50', o: 'Met slaatje, citroen en brood' },
+      { n: 'Uitsmijter ham en kaas', p: '12,50', o: 'Drie eieren op bruin brood' },
+      { n: 'Bitterballen (10 st.)', p: '8,50', o: 'Met mosterd' },
+      { n: 'Portie kaas, salami of gemengd', p: '8,00 / 9,50', o: 'Met mosterd en selderijzout' },
+    ],
+  },
+  {
+    id: 'warm',
+    tab: 'Warme gerechten',
+    intro: 'Huisbereid, zoals thuis. Frietjes, puree of brood naar keuze.',
+    items: [
+      { n: 'Stoofvlees op grootmoeders wijze', p: '22,50', o: 'Op bier gestoofd, met frietjes en slaatje' },
+      { n: 'Vol-au-vent', p: '21,00', o: 'Met kip, balletjes en champignons, met frietjes' },
+      { n: 'Balletjes in tomatensaus', p: '19,50', o: 'Met frietjes of puree' },
+      { n: 'Steak met frietjes', p: '27,50', o: 'Peper-, champignon- of bearnaisesaus' },
+      { n: 'Vispannetje', p: '25,50', o: 'Zalm, kabeljauw en grijze garnalen, met puree' },
+      { n: 'Spaghetti bolognaise', p: '14,50 / 18,50', o: 'Klein of groot' },
+      { n: 'Lasagne met groenten', p: '19,00', o: 'Vegetarisch, gegratineerd' },
+      { n: 'Kinderspaghetti', p: '10,50' },
+    ],
+  },
+  {
+    id: 'zoet',
+    tab: 'Zoet & koffie',
+    intro: 'Voor bij de koffie of als dessert.',
+    items: [
+      { n: 'Koffie / deca', p: '3,20' },
+      { n: 'Cappuccino', p: '3,90', o: 'Met melkschuim of slagroom' },
+      { n: 'Latte macchiato', p: '4,20', o: 'Karamel, speculoos of hazelnoot + 0,60' },
+      { n: 'Thee', p: '3,20', o: 'Zwart, groen, munt of rooibos' },
+      { n: 'Warme chocomelk', p: '4,00', o: 'Met slagroom + 0,80' },
+      { n: 'Stuk taart van de dag', p: '4,80' },
+      { n: 'Wafel', p: '5,50 / 7,00', o: 'Met poedersuiker of met slagroom' },
+      { n: 'Pannenkoeken (3 st.)', p: '6,50', o: 'Met suiker, confituur of siroop' },
+      { n: 'Dame blanche', p: '8,50', o: 'Vanille-ijs, warme chocoladesaus en slagroom' },
+      { n: 'Coupe brésilienne', p: '8,50', o: 'Vanille-ijs, karamelsaus en brésiliennenootjes' },
+    ],
+  },
+  {
+    id: 'dranken',
+    tab: 'Dranken',
+    intro: 'Pintjes van ’t vat, streekbieren en een glas wijn op het terras.',
+    items: [
+      { n: 'Pils van ’t vat', p: '3,00 / 3,90', o: '25 of 33 cl' },
+      { n: 'Leffe Blond van ’t vat', p: '4,20' },
+      { n: 'Rodenbach', p: '3,80' },
+      { n: 'Kwaremont', p: '4,60' },
+      { n: 'Duvel', p: '4,60' },
+      { n: 'Westmalle Tripel', p: '4,80' },
+      { n: 'Huiswijn wit, rood of rosé', p: '5,50', o: 'Per glas' },
+      { n: 'Cava', p: '7,50', o: 'Per glas' },
+      { n: 'Aperol Spritz', p: '9,50' },
+      { n: 'Frisdranken', p: '3,00', o: 'Cola, Cola Zero, Fanta, Sprite, Ice Tea' },
+      { n: 'Water plat of bruis', p: '2,80', o: '25 cl' },
+      { n: 'Vers geperst sinaasappelsap', p: '5,50' },
+    ],
+  },
+];

@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react';
 import { initMotion, lockScroll, motion } from './motion';
+import { KOP, KOP_VB } from './kop';
+import { KAART } from './kaart';
 
 const contact = {
   phoneDisplay: '056 60 44 64',
@@ -25,6 +27,7 @@ const uren: { dag: string; tijd: string | null; js: number }[] = [
 const nav: [string, string][] = [
   ['Over', '#over'],
   ['Aanbod', '#aanbod'],
+  ['Kaart', '#kaart'],
   ['Troeven', '#troeven'],
   ['Uren', '#uren'],
   ['Locatie', '#locatie'],
@@ -106,23 +109,31 @@ function Foto({ img, mobile, sizes = '100vw', mode = 'parallax', shade = false, 
   );
 }
 
+/* Paardenkop uit het logo als lijntekening (sw = lijndikte in viewBox-eenheden, dikker voor kleine formaten) */
+function Kop({ className, sw = 9 }: { className?: string; sw?: number }) {
+  return (
+    <svg className={`kop ${className ?? ''}`} viewBox={KOP_VB} fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      {KOP.map((k, i) =>
+        k.e ? (
+          <ellipse key={i} className={k.t} cx={k.e[0]} cy={k.e[1]} rx={k.e[2]} ry={k.e[3]} fill="currentColor" pathLength={1} />
+        ) : (
+          <path key={i} className={k.t} d={k.d} fill={k.t === 'fl' ? 'currentColor' : 'none'} pathLength={1} />
+        ),
+      )}
+    </svg>
+  );
+}
+
 function Preloader() {
   return (
     <div className="pre" aria-hidden="true">
-      <div className="pre__row">
-        <div className="pre__half">
-          <span className="eyebrow">Koffie</span>
-        </div>
-        <div className="pre__mark">
-          <span className="t-s">’t Peerdeke</span>
-        </div>
-        <div className="pre__half">
-          <span className="eyebrow">Pintje</span>
-        </div>
+      <div className="pre__in">
+        <Kop className="pre__kop" sw={8} />
+        <p className="pre__naam">
+          <span>’t Peerdeke</span>
+        </p>
+        <p className="pre__line eyebrow">Taverne · Het Pand · Waregem</p>
       </div>
-      <p className="pre__line eyebrow">
-        <span style={{ display: 'block' }}>Het Pand · Waregem</span>
-      </p>
     </div>
   );
 }
@@ -197,7 +208,8 @@ function Header() {
             Bel ons
           </a>
           <a href="#top" className="hdr__logo" aria-label="’t Peerdeke, naar boven" onClick={() => setOpen(false)}>
-            ’t Peerdeke
+            <Kop className="hdr__kop" sw={26} />
+            <span>’t Peerdeke</span>
           </a>
           <button ref={togRef} type="button" className="hdr__tog" aria-expanded={open} aria-controls="menu" aria-label={open ? 'Menu sluiten' : 'Menu openen'} onClick={() => setOpen((o) => !o)}>
             <i />
@@ -313,7 +325,10 @@ function Intro() {
       </p>
       <Split className="t-m">Geniet van een koffie, een vers getapt pintje of bestel iets om je honger te stillen.</Split>
       <div className="intro__q" data-reveal="">
-        <span className="todo">[Eigen verhaal: wie staat achter de toog, sinds wanneer]</span>
+        <p className="p">
+          Achter de toog staat een gezin dat Het Pand door en door kent. Wat begon als het plan om ooit een eigen café te hebben, werd een plek waar vaste gasten hun krant lezen bij de eerste koffie, winkelend Waregem even neerstrijkt op het terras en vrienden blijven hangen voor nog eentje.
+        </p>
+        <p className="p">Geen poespas: een warm welkom, een goed getapt pintje en eerlijk eten zoals thuis.</p>
       </div>
       <div data-reveal="">
         <Btn href="#uren" dark>
@@ -334,7 +349,10 @@ function Aanbod() {
     [
       'Honger?',
       <>
-        Bestel iets om je honger te stillen. <span className="todo" style={{ marginTop: '0.75em' }}>[Menukaart]</span>
+        Bestel iets om je honger te stillen.{' '}
+        <a href="#kaart" className="lnk">
+          Bekijk de kaart
+        </a>
       </>,
     ],
   ];
@@ -358,6 +376,93 @@ function Aanbod() {
             </div>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* Kaart met tabs (WAI-ARIA tabs-patroon: pijltjes, Home/End, roving tabindex) */
+function Kaart() {
+  const [actief, setActief] = useState(0);
+  const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
+  const lijstRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  const kies = (i: number, focus = false) => {
+    const n = (i + KAART.length) % KAART.length;
+    setActief(n);
+    const tab = tabsRef.current[n];
+    if (focus) tab?.focus({ preventScroll: true });
+    // Actieve tab in beeld schuiven binnen de horizontale lijst (enkel die lijst, niet de pagina)
+    const lijst = lijstRef.current;
+    if (tab && lijst && lijst.scrollWidth > lijst.clientWidth) {
+      const doel = tab.offsetLeft - (lijst.clientWidth - tab.offsetWidth) / 2;
+      lijst.scrollTo({ left: doel, behavior: 'smooth' });
+    }
+  };
+
+  const onKey = (e: ReactKeyboardEvent) => {
+    const map: Record<string, number> = { ArrowRight: actief + 1, ArrowLeft: actief - 1, Home: 0, End: KAART.length - 1 };
+    if (e.key in map) {
+      e.preventDefault();
+      kies(map[e.key], true);
+    }
+  };
+
+  useEffect(() => {
+    const g = window.gsap;
+    if (!motion.on || !g || !panelRef.current) return;
+    g.fromTo(panelRef.current.querySelectorAll('.gr'), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out', stagger: 0.035, overwrite: true });
+  }, [actief]);
+
+  const r = KAART[actief];
+  return (
+    <section id="kaart" className="kaart wrap" aria-label="De kaart">
+      <div className="kaart__head">
+        <p className="eyebrow" data-reveal="">
+          De kaart
+        </p>
+        <Split className="t-l">Iets om je honger te stillen.</Split>
+        <p className="kaart__note" data-reveal="">
+          Voorbeeldkaart, gerechten en prijzen ter illustratie
+        </p>
+      </div>
+      <div className="kaart__tabs" ref={lijstRef} role="tablist" aria-label="Rubrieken van de kaart" onKeyDown={onKey}>
+        {KAART.map((k, i) => (
+          <button
+            key={k.id}
+            ref={(el) => {
+              tabsRef.current[i] = el;
+            }}
+            type="button"
+            role="tab"
+            id={`tab-${k.id}`}
+            aria-selected={i === actief}
+            aria-controls={`paneel-${k.id}`}
+            tabIndex={i === actief ? 0 : -1}
+            className={`tab ${i === actief ? 'is-on' : ''}`}
+            onClick={() => kies(i)}
+          >
+            {k.tab}
+          </button>
+        ))}
+      </div>
+      <div ref={panelRef} className="kaart__panel" role="tabpanel" id={`paneel-${r.id}`} aria-labelledby={`tab-${r.id}`} tabIndex={0}>
+        <p className="kaart__intro">{r.intro}</p>
+        <ul className="kaart__lijst">
+          {r.items.map((g) => (
+            <li key={g.n} className="gr">
+              <div className="gr__r">
+                <span className="gr__n">{g.n}</span>
+                <span className="gr__d" aria-hidden="true" />
+                <span className="gr__p">
+                  <span className="sr">Prijs: </span>€&nbsp;{g.p}
+                </span>
+              </div>
+              {g.o && <p className="gr__o">{g.o}</p>}
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
@@ -467,8 +572,13 @@ function Locatie() {
           </div>
           <div>
             <span className="eyebrow dim">Socials</span>
-            <span>
-              <span className="todo">[Facebook / Instagram]</span>
+            <span className="socials">
+              <a href="#" aria-label="’t Peerdeke op Facebook">
+                Facebook
+              </a>
+              <a href="#" aria-label="’t Peerdeke op Instagram">
+                Instagram
+              </a>
             </span>
           </div>
         </div>
@@ -492,22 +602,38 @@ function Footer() {
   useEffect(() => {
     const el = markRef.current;
     if (!el) return;
+    // Vroeger: max-width:100% kapte de max-content-meting af, waardoor de tekst nooit kleiner werd.
+    // Nu meten we de breedte van de binnenste inline-block-span (niet begrensd door de container).
+    const inner = el.firstElementChild as HTMLElement | null;
     const fit = () => {
+      if (!inner) return;
       el.style.fontSize = '100px';
-      el.style.width = 'max-content';
-      const nodig0 = el.offsetWidth;
-      el.style.width = '';
-      const beschikbaar = el.clientWidth;
-      const nodig = nodig0;
-      if (nodig > 0) el.style.fontSize = `${Math.floor((100 * beschikbaar) / nodig) - 1}px`;
+      const nodig = inner.getBoundingClientRect().width;
+      const cs = getComputedStyle(el);
+      const beschikbaar = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      if (nodig > 0) el.style.fontSize = `${Math.max(12, Math.floor((100 * beschikbaar * 0.985) / nodig))}px`;
     };
     fit();
     document.fonts?.ready.then(fit);
-    window.addEventListener('resize', fit);
-    return () => window.removeEventListener('resize', fit);
+    document.fonts?.addEventListener?.('loadingdone', fit);
+    let lastW = 0;
+    const ro = new ResizeObserver(() => {
+      if (el.clientWidth === lastW) return;
+      lastW = el.clientWidth;
+      fit();
+    });
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      document.fonts?.removeEventListener?.('loadingdone', fit);
+    };
   }, []);
   return (
     <footer className="foot">
+      <div className="foot__brand">
+        <Kop className="foot__kop" sw={14} />
+        <span className="script">’t Peerdeke</span>
+      </div>
       <div className="foot__top">
         <div>
           <p className="eyebrow">Adres</p>
@@ -518,6 +644,8 @@ function Footer() {
           <p className="eyebrow">Contact</p>
           <a href={contact.phoneHref}>{contact.phoneDisplay}</a>
           <a href={`mailto:${contact.email}`}>{contact.email}</a>
+          <a href="#">Facebook</a>
+          <a href="#">Instagram</a>
         </div>
         <div>
           <p className="eyebrow">Uren</p>
@@ -534,16 +662,18 @@ function Footer() {
           ))}
         </div>
       </div>
-      <div ref={markRef} className="foot__mark" data-chars="" aria-label={merk}>
-        {[...merk].map((c, i) => (
-          <span key={i} className="w" aria-hidden="true">
-            <span className="wi ci">{c === ' ' ? '\u00a0' : c}</span>
-          </span>
-        ))}
+      <div ref={markRef} className="foot__mark" data-chars="" role="img" aria-label={merk}>
+        <span className="foot__mark-in">
+          {[...merk].map((c, i) => (
+            <span key={i} className="w" aria-hidden="true">
+              <span className="wi ci">{c === ' ' ? '\u00a0' : c}</span>
+            </span>
+          ))}
+        </span>
       </div>
       <div className="foot__bot">
         <span>© {new Date().getFullYear()} ’t Peerdeke · Taverne in Het Pand</span>
-        <span>[Ondernemingsnummer]</span>
+        <span>BTW BE 0000.000.000</span>
       </div>
     </footer>
   );
@@ -561,6 +691,7 @@ export default function App() {
         <Hero vandaag={vandaag} />
         <Intro />
         <Aanbod />
+        <Kaart />
         <Terras />
         <Troeven />
         <Uren vandaag={vandaag} />
