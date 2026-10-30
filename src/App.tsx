@@ -395,8 +395,8 @@ function Aanbod() {
   );
 }
 
-/* Kaart, lichte variant (ontwerpalternatief ter vergelijking): eigen state, eigen ids (prefix "licht-") */
-function KaartLicht() {
+/* Kaart met tabs (WAI-ARIA tabs-patroon: pijltjes, Home/End, roving tabindex), lichte stijl */
+function Kaart() {
   const [actief, setActief] = useState(0);
   const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const lijstRef = useRef<HTMLDivElement>(null);
@@ -428,9 +428,22 @@ function KaartLicht() {
     g.fromTo(els, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', stagger: { amount: Math.min(0.5, els.length * 0.025) }, overwrite: true });
   }, [actief]);
 
+  // Fade-hint op mobiel: randen enkel tonen als er links/rechts nog tabs zijn
+  const [rand, setRand] = useState({ start: true, end: false });
+  const meetRand = () => {
+    const l = lijstRef.current;
+    if (!l) return;
+    setRand({ start: l.scrollLeft < 4, end: l.scrollLeft + l.clientWidth >= l.scrollWidth - 4 });
+  };
+  useEffect(() => {
+    meetRand();
+    window.addEventListener('resize', meetRand);
+    return () => window.removeEventListener('resize', meetRand);
+  }, []);
+
   const r = KAART[actief];
   return (
-    <section id="kaart-licht" className="kl" aria-label="De kaart (lichte versie)">
+    <section id="kaart" className="kl" aria-label="De kaart">
       <div className="kl__in wrap">
         <header className="kl__head">
           <p className="kl__eyebrow" data-reveal="">
@@ -441,28 +454,29 @@ function KaartLicht() {
             Prijzen in euro, onder voorbehoud van wijzigingen
           </p>
         </header>
-        <div className="kl__tabs" ref={lijstRef} role="tablist" aria-label="Rubrieken van de kaart (lichte versie)" onKeyDown={onKey}>
-          {KAART.map((k, i) => (
-            <button
-              key={k.id}
-              ref={(el) => {
-                tabsRef.current[i] = el;
-              }}
-              type="button"
-              role="tab"
-              id={`licht-tab-${k.id}`}
-              aria-selected={i === actief}
-              aria-controls={`licht-paneel-${k.id}`}
-              tabIndex={i === actief ? 0 : -1}
-              className={`kl__tab ${i === actief ? 'is-on' : ''}`}
-              onClick={() => kies(i)}
-            >
-              {k.tab}
-            </button>
-          ))}
+        <div className={`kl__tabwrap${rand.start ? ' is-start' : ''}${rand.end ? ' is-end' : ''}`}>
+          <div className="kl__tabs" ref={lijstRef} role="tablist" aria-label="Rubrieken van de kaart" onKeyDown={onKey} onScroll={meetRand}>
+            {KAART.map((k, i) => (
+              <button
+                key={k.id}
+                ref={(el) => {
+                  tabsRef.current[i] = el;
+                }}
+                type="button"
+                role="tab"
+                id={`tab-${k.id}`}
+                aria-selected={i === actief}
+                aria-controls={`paneel-${k.id}`}
+                tabIndex={i === actief ? 0 : -1}
+                className={`kl__tab ${i === actief ? 'is-on' : ''}`}
+                onClick={() => kies(i)}
+              >
+                {k.tab}
+              </button>
+            ))}
+          </div>
         </div>
-        <div ref={panelRef} className="kl__panel" role="tabpanel" id={`licht-paneel-${r.id}`} aria-labelledby={`licht-tab-${r.id}`} tabIndex={0}>
-          <p className="kl__intro">{r.intro}</p>
+        <div ref={panelRef} className="kl__panel" role="tabpanel" id={`paneel-${r.id}`} aria-labelledby={`tab-${r.id}`} tabIndex={0}>
           {r.groepen.map((gr) => (
             <div key={gr.titel} className="kl__groep">
               <h3 className="kl__groep-kop">
@@ -484,99 +498,6 @@ function KaartLicht() {
             </div>
           ))}
         </div>
-      </div>
-    </section>
-  );
-}
-
-/* Kaart met tabs (WAI-ARIA tabs-patroon: pijltjes, Home/End, roving tabindex) */
-function Kaart() {
-  const [actief, setActief] = useState(0);
-  const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
-  const lijstRef = useRef<HTMLDivElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
-
-  const kies = (i: number, focus = false) => {
-    const n = (i + KAART.length) % KAART.length;
-    setActief(n);
-    const tab = tabsRef.current[n];
-    if (focus) tab?.focus({ preventScroll: true });
-    // Actieve tab in beeld schuiven binnen de horizontale lijst (enkel die lijst, niet de pagina)
-    const lijst = lijstRef.current;
-    if (tab && lijst && lijst.scrollWidth > lijst.clientWidth) {
-      const doel = tab.offsetLeft - (lijst.clientWidth - tab.offsetWidth) / 2;
-      lijst.scrollTo({ left: doel, behavior: 'smooth' });
-    }
-  };
-
-  const onKey = (e: ReactKeyboardEvent) => {
-    const map: Record<string, number> = { ArrowRight: actief + 1, ArrowLeft: actief - 1, Home: 0, End: KAART.length - 1 };
-    if (e.key in map) {
-      e.preventDefault();
-      kies(map[e.key], true);
-    }
-  };
-
-  useEffect(() => {
-    const g = window.gsap;
-    if (!motion.on || !g || !panelRef.current) return;
-    const els = panelRef.current.querySelectorAll('.kaart__sub, .gr');
-    g.fromTo(els, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.55, ease: 'power3.out', stagger: { amount: Math.min(0.6, els.length * 0.03) }, overwrite: true });
-  }, [actief]);
-
-  const r = KAART[actief];
-  return (
-    <section id="kaart" className="kaart wrap" aria-label="De kaart">
-      <div className="kaart__head">
-        <p className="eyebrow" data-reveal="">
-          De kaart
-        </p>
-        <Split className="t-l">Iets om je honger te stillen.</Split>
-        <p className="kaart__note" data-reveal="">
-          Prijzen in euro, onder voorbehoud van wijzigingen
-        </p>
-      </div>
-      <div className="kaart__tabs" ref={lijstRef} role="tablist" aria-label="Rubrieken van de kaart" onKeyDown={onKey}>
-        {KAART.map((k, i) => (
-          <button
-            key={k.id}
-            ref={(el) => {
-              tabsRef.current[i] = el;
-            }}
-            type="button"
-            role="tab"
-            id={`tab-${k.id}`}
-            aria-selected={i === actief}
-            aria-controls={`paneel-${k.id}`}
-            tabIndex={i === actief ? 0 : -1}
-            className={`tab ${i === actief ? 'is-on' : ''}`}
-            onClick={() => kies(i)}
-          >
-            {k.tab}
-          </button>
-        ))}
-      </div>
-      <div ref={panelRef} className="kaart__panel" role="tabpanel" id={`paneel-${r.id}`} aria-labelledby={`tab-${r.id}`} tabIndex={0}>
-        <p className="kaart__intro">{r.intro}</p>
-        {r.groepen.map((gr) => (
-          <div key={gr.titel} className="kaart__groep">
-            <h3 className="kaart__sub">{gr.titel}</h3>
-            <ul className="kaart__lijst">
-              {gr.items.map((g) => (
-                <li key={g.n} className="gr">
-                  <div className="gr__r">
-                    <span className="gr__n">{g.n}</span>
-                    <span className="gr__d" aria-hidden="true" />
-                    <span className="gr__p">
-                      <span className="sr">Prijs: </span>€&nbsp;{g.p}
-                    </span>
-                  </div>
-                  {g.o && <p className="gr__o">{g.o}</p>}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
       </div>
     </section>
   );
@@ -818,7 +739,6 @@ export default function App() {
         <Intro />
         <Aanbod />
         <Kaart />
-        <KaartLicht />
         <Toog />
         <Troeven />
         <Uren vandaag={vandaag} />

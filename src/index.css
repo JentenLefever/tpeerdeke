@@ -296,57 +296,6 @@ html:not(.anim) .pre { display: none; }
   .split__bottom, .split__bottom.two { grid-template-columns: 1fr; gap: 1.5em; }
 }
 
-/* Kaart met tabs */
-.kaart { padding-block: 9em 8em; background: var(--inkt); color: var(--creme); }
-.kaart__head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 1.75em 2em; }
-.kaart__head .eyebrow { grid-column: 1 / -1; color: var(--goud); }
-.kaart__head .t-l { max-width: 11em; }
-.kaart__note { margin: 0; font-size: 0.8125em; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.55; text-align: right; max-width: 22em; }
-.kaart__tabs {
-  display: flex; gap: 0.5em; margin-top: 4em; padding-bottom: 1.5em; border-bottom: 1px solid rgba(246, 239, 226, 0.16);
-  overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity;
-}
-.kaart__tabs::-webkit-scrollbar { display: none; }
-.tab {
-  flex: none; scroll-snap-align: start; cursor: pointer; font: inherit; font-size: 0.875em; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
-  color: var(--creme); background: none; border: 1px solid rgba(246, 239, 226, 0.28); border-radius: 999px; padding: 0 1.4em; min-height: 44px; white-space: nowrap;
-  transition: background-color 0.4s var(--ease), color 0.4s var(--ease), border-color 0.4s var(--ease);
-}
-.tab.is-on { background: var(--goud); border-color: var(--goud); color: var(--inkt); }
-@media (hover: hover) { .tab:not(.is-on):hover { border-color: var(--goud); color: var(--goud); } }
-.tab:focus-visible { outline: 2px solid var(--goud); outline-offset: 3px; }
-.kaart__panel { padding-top: 2.5em; outline: none; }
-.kaart__panel:focus-visible { outline: 1px dashed rgba(201, 151, 62, 0.6); outline-offset: 0.75em; }
-.kaart__intro { margin: 0 0 2em; font-size: 1em; opacity: 0.6; }
-.kaart__lijst { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 5em; }
-.gr { padding: 1.15em 0; border-top: 1px solid rgba(246, 239, 226, 0.12); }
-.gr__r { display: flex; align-items: baseline; gap: 0.75em; }
-.gr__n { font-family: var(--f1); text-transform: uppercase; letter-spacing: 0.03em; font-size: 1.375em; line-height: 1.05; min-width: 0; }
-.gr__d { flex: 1; min-width: 1.5em; border-bottom: 1px dotted rgba(246, 239, 226, 0.35); transform: translateY(-0.3em); }
-.gr__p { flex: none; font-variant-numeric: tabular-nums; color: var(--goud); font-size: 1.0625em; white-space: nowrap; }
-.gr__o { margin: 0.45em 0 0; font-size: 0.9375em; line-height: 1.35; opacity: 0.62; max-width: 30em; }
-.kaart__groep + .kaart__groep { margin-top: 3em; }
-.kaart__sub { margin: 0 0 0.9em; font-family: inherit; font-weight: 500; font-size: 0.8125em; letter-spacing: 0.14em; text-transform: uppercase; color: var(--goud); }
-.kaart__groep .gr { padding: 0.8em 0; }
-.kaart__groep .gr__n { font-size: 1.1875em; }
-@media (max-width: 1024px) {
-  .kaart { padding-block: 5em; }
-  .kaart__head { grid-template-columns: 1fr; gap: 1.25em; }
-  .kaart__note { text-align: left; max-width: none; font-size: 0.75em; }
-  .kaart__tabs { margin-top: 2.25em; margin-inline: calc(-1 * var(--pad)); padding-inline: var(--pad); scroll-padding-inline: var(--pad); padding-bottom: 1.25em;
- }
-  .kaart__tabs::after { content: ''; flex: none; width: 1px; }
-  .tab { font-size: 0.75em; padding: 0 1.15em; }
-  .kaart__panel { padding-top: 1.75em; }
-  .kaart__intro { font-size: 0.9375em; margin-bottom: 1.25em; }
-  .kaart__lijst { grid-template-columns: 1fr; }
-  .gr__n { font-size: 1.125em; }
-  .kaart__groep + .kaart__groep { margin-top: 2.25em; }
-  .kaart__groep .gr__n { font-size: 1.0625em; }
-  .gr__p { font-size: 0.9375em; }
-  .gr__o { font-size: 0.875em; }
-}
-
 /* Volle afbeelding met parallax */
 .full { position: relative; height: 110vh; overflow: hidden; color: var(--wit); display: flex; align-items: flex-end; }
 .full__c { position: relative; z-index: 2; padding: 0 var(--pad) 3em; display: grid; gap: 1.25em; width: 100%; }
@@ -485,7 +434,7 @@ html.is-locked, html.is-locked body { overflow: hidden; }
   .res__knop { width: 100%; }
 }
 
-/* ---------- Kaart, lichte variant (#kaart-licht): crème, inkt, fijne lijnen, ingetogen tabs ---------- */
+/* ---------- Kaart (#kaart): crème, inkt, fijne lijnen, tabs als pillen ---------- */
 .kl { --kl-lijn: rgba(18, 13, 10, 0.14); background: var(--wit); color: var(--inkt); padding-block: 9em 8em; border-top: 1px solid var(--kl-lijn); }
 .kl__in { max-width: calc(72em + 2 * var(--pad)); margin-inline: auto; }
 .kl__head { text-align: center; display: grid; justify-items: center; gap: 1.5em; }
@@ -493,27 +442,21 @@ html.is-locked, html.is-locked body { overflow: hidden; }
 .kl__eyebrow::before, .kl__eyebrow::after { content: ''; width: 3.5em; height: 1px; background: currentColor; opacity: 0.45; }
 .kl__titel { max-width: 16em; color: var(--bruin); text-wrap: balance; }
 .kl__note { margin: 0; font-size: 0.75em; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(18, 13, 10, 0.5); }
-.kl__tabs {
-  display: flex; justify-content: safe center; gap: 2.5em; margin-top: 4.5em; border-bottom: 1px solid var(--kl-lijn);
-  overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
-}
-.kl__tabs::-webkit-scrollbar { display: none; }
+.kl__tabwrap { position: relative; margin-top: 4em; }
+.kl__tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.625em; }
 .kl__tab {
-  position: relative; flex: none; cursor: pointer; background: none; border: 0; padding: 0 0 1.1em; min-height: 44px; white-space: nowrap;
-  font: inherit; font-size: 0.8125em; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(18, 13, 10, 0.48);
-  transition: color 0.4s var(--ease);
+  flex: none; cursor: pointer; background: transparent; border: 1px solid rgba(18, 13, 10, 0.22); border-radius: 999px;
+  padding: 0 1.5em; min-height: 44px; white-space: nowrap;
+  font: inherit; font-size: 0.8125em; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--inkt);
+  transition: background-color 0.35s var(--ease), color 0.35s var(--ease), border-color 0.35s var(--ease);
 }
-.kl__tab::after {
-  content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--inkt);
-  transform: scaleX(0); transform-origin: left; transition: transform 0.6s var(--ease);
+.kl__tab.is-on { background: var(--inkt); border-color: var(--inkt); color: var(--creme); }
+@media (hover: hover) {
+  .kl__tab:not(.is-on):hover { border-color: var(--inkt); background: rgba(18, 13, 10, 0.05); }
 }
-.kl__tab.is-on { color: var(--inkt); }
-.kl__tab.is-on::after { transform: scaleX(1); }
-@media (hover: hover) { .kl__tab:not(.is-on):hover { color: var(--terra); } }
-.kl__tab:focus-visible { outline: 1px solid var(--terra); outline-offset: 4px; }
-.kl__panel { padding-top: 3.5em; outline: none; }
+.kl__tab:focus-visible { outline: 2px solid var(--terra); outline-offset: 3px; }
+.kl__panel { padding-top: 4em; outline: none; }
 .kl__panel:focus-visible { outline: 1px dashed rgba(181, 88, 59, 0.5); outline-offset: 1em; }
-.kl__intro { margin: 0 auto 3.5em; max-width: 34em; text-align: center; font-size: 1.0625em; line-height: 1.5; font-weight: 400; color: rgba(18, 13, 10, 0.66); }
 .kl__groep + .kl__groep { margin-top: 4em; }
 .kl__groep-kop { margin: 0 0 1.75em; display: flex; align-items: center; gap: 1.25em; font: inherit; font-weight: 500; font-size: 0.75em; letter-spacing: 0.24em; text-transform: uppercase; color: var(--salie); }
 .kl__groep-kop::before, .kl__groep-kop::after { content: ''; flex: 1; height: 1px; background: var(--kl-lijn); }
@@ -526,11 +469,25 @@ html.is-locked, html.is-locked body { overflow: hidden; }
 @media (max-width: 1024px) {
   .kl { padding-block: 5em; }
   .kl__head { gap: 1.1em; }
-  .kl__tabs { justify-content: flex-start; gap: 1.75em; margin-top: 2.75em; margin-inline: calc(-1 * var(--pad)); padding-inline: var(--pad); scroll-padding-inline: var(--pad); }
+  .kl__tabwrap { margin-top: 2.5em; margin-inline: calc(-1 * var(--pad)); }
+  .kl__tabs {
+    flex-wrap: nowrap; justify-content: flex-start; gap: 0.5em; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    padding-inline: var(--pad); scroll-padding-inline: var(--pad); scroll-snap-type: x proximity;
+  }
+  .kl__tabs::-webkit-scrollbar { display: none; }
   .kl__tabs::after { content: ''; flex: none; width: 1px; }
-  .kl__tab { font-size: 0.75em; padding-bottom: 0.9em; }
-  .kl__panel { padding-top: 2.25em; }
-  .kl__intro { font-size: 0.9375em; margin-bottom: 2.25em; }
+  .kl__tab { scroll-snap-align: start; font-size: 0.75em; padding: 0 1.25em; }
+  /* Hint dat er nog tabs volgen: zachte fade aan de rand, verdwijnt op het einde */
+  .kl__tabwrap::after {
+    content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 3.5em; pointer-events: none;
+    background: linear-gradient(to right, rgba(255, 253, 249, 0), var(--wit) 85%); transition: opacity 0.3s;
+  }
+  .kl__tabwrap:not(.is-start)::before {
+    content: ''; position: absolute; z-index: 1; top: 0; left: 0; bottom: 0; width: 2.5em; pointer-events: none;
+    background: linear-gradient(to left, rgba(255, 253, 249, 0), var(--wit) 85%);
+  }
+  .kl__tabwrap.is-end::after { opacity: 0; }
+  .kl__panel { padding-top: 2.5em; }
   .kl__groep + .kl__groep { margin-top: 2.75em; }
   .kl__groep-kop { margin-bottom: 0.75em; }
   .kl__lijst { grid-template-columns: 1fr; }
