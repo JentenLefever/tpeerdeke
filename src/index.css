@@ -320,6 +320,10 @@ html:not(.anim) .pre { display: none; }
 .gr__d { flex: 1; min-width: 1.5em; border-bottom: 1px dotted rgba(246, 239, 226, 0.35); transform: translateY(-0.3em); }
 .gr__p { flex: none; font-variant-numeric: tabular-nums; color: var(--goud); font-size: 1.0625em; white-space: nowrap; }
 .gr__o { margin: 0.45em 0 0; font-size: 0.9375em; line-height: 1.35; opacity: 0.62; max-width: 30em; }
+.kaart__groep + .kaart__groep { margin-top: 3em; }
+.kaart__sub { margin: 0 0 0.9em; font-family: inherit; font-weight: 500; font-size: 0.8125em; letter-spacing: 0.14em; text-transform: uppercase; color: var(--goud); }
+.kaart__groep .gr { padding: 0.8em 0; }
+.kaart__groep .gr__n { font-size: 1.1875em; }
 @media (max-width: 1024px) {
   .kaart { padding-block: 5em; }
   .kaart__head { grid-template-columns: 1fr; gap: 1.25em; }
@@ -332,6 +336,8 @@ html:not(.anim) .pre { display: none; }
   .kaart__intro { font-size: 0.9375em; margin-bottom: 1.25em; }
   .kaart__lijst { grid-template-columns: 1fr; }
   .gr__n { font-size: 1.125em; }
+  .kaart__groep + .kaart__groep { margin-top: 2.25em; }
+  .kaart__groep .gr__n { font-size: 1.0625em; }
   .gr__p { font-size: 0.9375em; }
   .gr__o { font-size: 0.875em; }
 }

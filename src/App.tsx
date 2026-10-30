@@ -425,7 +425,8 @@ function Kaart() {
   useEffect(() => {
     const g = window.gsap;
     if (!motion.on || !g || !panelRef.current) return;
-    g.fromTo(panelRef.current.querySelectorAll('.gr'), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out', stagger: 0.035, overwrite: true });
+    const els = panelRef.current.querySelectorAll('.kaart__sub, .gr');
+    g.fromTo(els, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.55, ease: 'power3.out', stagger: { amount: Math.min(0.6, els.length * 0.03) }, overwrite: true });
   }, [actief]);
 
   const r = KAART[actief];
@@ -437,7 +438,7 @@ function Kaart() {
         </p>
         <Split className="t-l">Iets om je honger te stillen.</Split>
         <p className="kaart__note" data-reveal="">
-          Voorbeeldkaart, gerechten en prijzen ter illustratie
+          Prijzen in euro, onder voorbehoud van wijzigingen
         </p>
       </div>
       <div className="kaart__tabs" ref={lijstRef} role="tablist" aria-label="Rubrieken van de kaart" onKeyDown={onKey}>
@@ -462,20 +463,25 @@ function Kaart() {
       </div>
       <div ref={panelRef} className="kaart__panel" role="tabpanel" id={`paneel-${r.id}`} aria-labelledby={`tab-${r.id}`} tabIndex={0}>
         <p className="kaart__intro">{r.intro}</p>
-        <ul className="kaart__lijst">
-          {r.items.map((g) => (
-            <li key={g.n} className="gr">
-              <div className="gr__r">
-                <span className="gr__n">{g.n}</span>
-                <span className="gr__d" aria-hidden="true" />
-                <span className="gr__p">
-                  <span className="sr">Prijs: </span>€&nbsp;{g.p}
-                </span>
-              </div>
-              {g.o && <p className="gr__o">{g.o}</p>}
-            </li>
-          ))}
-        </ul>
+        {r.groepen.map((gr) => (
+          <div key={gr.titel} className="kaart__groep">
+            <h3 className="kaart__sub">{gr.titel}</h3>
+            <ul className="kaart__lijst">
+              {gr.items.map((g) => (
+                <li key={g.n} className="gr">
+                  <div className="gr__r">
+                    <span className="gr__n">{g.n}</span>
+                    <span className="gr__d" aria-hidden="true" />
+                    <span className="gr__p">
+                      <span className="sr">Prijs: </span>€&nbsp;{g.p}
+                    </span>
+                  </div>
+                  {g.o && <p className="gr__o">{g.o}</p>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
     </section>
   );
