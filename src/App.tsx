@@ -74,6 +74,8 @@ function Btn({ href, children, dark = false, ext = false }: { href: string; chil
   );
 }
 
+const FB_URL = 'https://www.facebook.com/share/1GrMia19oQ/';
+
 // Echte foto's van de zaak (WebP, meerdere breedtes).
 const IMG: Record<string, { w: number[]; alt: string }> = {
   hero: { w: [480, 800, 1280, 1536], alt: 'Zonnig terras van ’t Peerdeke in Het Pand, vol gasten onder de parasols' },
@@ -584,11 +586,8 @@ function Locatie() {
           <div>
             <span className="eyebrow dim">Socials</span>
             <span className="socials">
-              <a href="#" aria-label="’t Peerdeke op Facebook">
+              <a href={FB_URL} target="_blank" rel="noopener" aria-label="’t Peerdeke op Facebook (opent in een nieuw venster)">
                 Facebook
-              </a>
-              <a href="#" aria-label="’t Peerdeke op Instagram">
-                Instagram
               </a>
             </span>
           </div>
@@ -655,8 +654,11 @@ function Footer() {
           <p className="eyebrow">Contact</p>
           <a href={contact.phoneHref}>{contact.phoneDisplay}</a>
           <a href={`mailto:${contact.email}`}>{contact.email}</a>
-          <a href="#">Facebook</a>
-          <a href="#">Instagram</a>
+          <a href={FB_URL} target="_blank" rel="noopener" className="fb" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M13.4 21v-7.6h2.6l.4-3h-3V8.5c0-.9.3-1.5 1.5-1.5h1.6V4.3c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H7.7v3h2.6V21h3.1z" />
+            </svg>
+          </a>
         </div>
         <div>
           <p className="eyebrow">Uren</p>

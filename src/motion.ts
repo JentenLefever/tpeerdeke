@@ -82,6 +82,10 @@ export function initMotion(): () => void {
       const vlak = pre.querySelector('.pre__kop .kop__f');
       gsap.set(lijnen, { strokeDasharray: 1, strokeDashoffset: 1 });
       gsap.set(vlak, { fillOpacity: 0 });
+      const mark = pre.querySelector<HTMLElement>('.pre__mark');
+      const markHalf = () => (mark ? mark.offsetWidth / 2 : 0);
+      gsap.set('.pre__half:first-child', { x: markHalf() });
+      gsap.set('.pre__half:last-child', { x: -markHalf() });
       const tl = gsap.timeline();
       // pen-planning: vaste pseudo-willekeur zodat het elke keer even "menselijk" oogt
       let seed = 7;
@@ -91,36 +95,36 @@ export function initMotion(): () => void {
       const plan = lijnen.map((el) => {
         const l = parseFloat(el.dataset.l || '20');
         const g = parseInt(el.dataset.g || '0', 10);
-        if (g !== vorigeGroep && vorigeGroep !== -1) t += 0.06; // korte adempauze bij een nieuw onderdeel
+        if (g !== vorigeGroep && vorigeGroep !== -1) t += 0.025; // korte adempauze bij een nieuw onderdeel
         vorigeGroep = g;
         const dur = (0.14 + 0.42 * Math.sqrt(l / 300)) * (0.8 + rnd() * 0.45);
         const start = t;
-        t += dur * (0.28 + rnd() * 0.14);
+        t += dur * (0.16 + rnd() * 0.08);
         return { el, start, dur };
       });
       const einde = Math.max(...plan.map((p) => p.start + p.dur), 0.01);
-      const k = 1.75 / einde; // hele tekening in ~1,75 s
+      const k = 1.05 / einde; // hele tekening in ~1 s
       const eases = ['power1.inOut', 'sine.inOut', 'power2.out', 'none'];
       plan.forEach((p, i) => {
         tl.to(p.el, { strokeDashoffset: 0, duration: p.dur * k, ease: eases[i % eases.length] }, p.start * k);
       });
-      tl.to(vlak, { fillOpacity: 1, duration: 0.55, ease: 'power1.inOut' }, 1.5)
-        .from('.pre__half span', { yPercent: 110, duration: 0.7, ease: 'power3.out', stagger: 0.06 }, 0.85)
-        .from('.pre__half:first-child', { x: 20, duration: 1.0, ease: 'power3.inOut' }, 1.0)
-        .from('.pre__half:last-child', { x: -20, duration: 1.0, ease: 'power3.inOut' }, 1.0)
-        .to('.pre__mark', { width: 'auto', duration: 1.0, ease: 'power3.inOut' }, 1.0)
-        .from('.pre__mark span', { yPercent: -110, duration: 1.0, ease: 'power3.inOut' }, 1.1)
-        .from('.pre__line', { autoAlpha: 0, duration: 0.5 }, 1.2);
+      tl.to(vlak, { fillOpacity: 1, duration: 0.3, ease: 'sine.inOut' }, 0.85)
+        // alleen transform/opacity: de helften staan eerst tegen elkaar (naar het midden geschoven) en schuiven open
+        .fromTo('.pre__half span', { yPercent: 110, y: 0 }, { yPercent: 0, y: 0, duration: 0.45, ease: 'power3.out', stagger: 0.04 }, 0.45)
+        .fromTo('.pre__half:first-child', { x: () => markHalf() }, { x: 0, duration: 0.6, ease: 'power3.inOut' }, 0.55)
+        .fromTo('.pre__half:last-child', { x: () => -markHalf() }, { x: 0, duration: 0.6, ease: 'power3.inOut' }, 0.55)
+        .fromTo('.pre__mark span', { yPercent: -110, y: 0 }, { yPercent: 0, y: 0, duration: 0.6, ease: 'power3.inOut' }, 0.62)
+        .from('.pre__line', { autoAlpha: 0, duration: 0.35 }, 0.7);
 
       let exited = false;
       const exit = () => {
         if (exited) return;
         exited = true;
-        gsap.timeline({ delay: 0.1 })
-          .to('.pre__half span, .pre__mark span, .pre__line', { yPercent: 110, duration: 0.45, ease: 'power3.in', stagger: 0.03 })
-          .to('.pre__kop', { autoAlpha: 0, y: -12, duration: 0.45, ease: 'power3.in' }, 0)
+        gsap.timeline({ delay: 0.05 })
+          .to('.pre__half span, .pre__mark span, .pre__line', { yPercent: 110, duration: 0.3, ease: 'power3.in', stagger: 0.02 })
+          .to('.pre__kop', { autoAlpha: 0, y: -12, duration: 0.3, ease: 'power3.in' }, 0)
           .add(done, '-=0.1')
-          .to(pre, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.75, ease: 'power3.inOut' }, '-=0.1')
+          .to(pre, { yPercent: -100, duration: 0.5, ease: 'power3.inOut' }, '-=0.1')
           .set(pre, { display: 'none' });
       };
       const ready = () => tl.then(exit);
