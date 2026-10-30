@@ -103,18 +103,20 @@ export function initMotion(): () => void {
         return { el, start, dur };
       });
       const einde = Math.max(...plan.map((p) => p.start + p.dur), 0.01);
-      const k = 1.05 / einde; // hele tekening in ~1 s
+      const k = 1.6 / einde; // hele tekening in ~1,6 s
       const eases = ['power1.inOut', 'sine.inOut', 'power2.out', 'none'];
       plan.forEach((p, i) => {
         tl.to(p.el, { strokeDashoffset: 0, duration: p.dur * k, ease: eases[i % eases.length] }, p.start * k);
       });
-      tl.to(vlak, { fillOpacity: 1, duration: 0.3, ease: 'sine.inOut' }, 0.85)
+      // de naam komt al op terwijl de kop nog getekend wordt (niet erna)
+      tl.to(vlak, { fillOpacity: 1, duration: 0.4, ease: 'sine.inOut' }, 1.35)
         // alleen transform/opacity: de helften staan eerst tegen elkaar (naar het midden geschoven) en schuiven open
-        .fromTo('.pre__half span', { yPercent: 110, y: 0 }, { yPercent: 0, y: 0, duration: 0.45, ease: 'power3.out', stagger: 0.04 }, 0.45)
-        .fromTo('.pre__half:first-child', { x: () => markHalf() }, { x: 0, duration: 0.6, ease: 'power3.inOut' }, 0.55)
-        .fromTo('.pre__half:last-child', { x: () => -markHalf() }, { x: 0, duration: 0.6, ease: 'power3.inOut' }, 0.55)
-        .fromTo('.pre__mark span', { yPercent: -110, y: 0 }, { yPercent: 0, y: 0, duration: 0.6, ease: 'power3.inOut' }, 0.62)
-        .from('.pre__line', { autoAlpha: 0, duration: 0.35 }, 0.7);
+        .fromTo('.pre__half span', { yPercent: 110, y: 0, autoAlpha: 0 }, { yPercent: 0, y: 0, autoAlpha: 1, duration: 0.6, ease: 'power3.out', stagger: 0.05 }, 0.2)
+        .fromTo('.pre__half:first-child', { x: () => markHalf() }, { x: 0, duration: 0.75, ease: 'power3.inOut' }, 0.5)
+        .fromTo('.pre__half:last-child', { x: () => -markHalf() }, { x: 0, duration: 0.75, ease: 'power3.inOut' }, 0.5)
+        .fromTo('.pre__mark span', { yPercent: -110, y: 0, autoAlpha: 0 }, { yPercent: 0, y: 0, autoAlpha: 1, duration: 0.7, ease: 'power3.out' }, 0.6)
+        .from('.pre__line', { autoAlpha: 0, duration: 0.45 }, 0.8)
+        .to({}, { duration: 0.25 }, 1.75); // korte rust op het volle beeld (~2 s), daarna veegt alles weg (~0,85 s)
 
       let exited = false;
       const exit = () => {

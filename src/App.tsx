@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, 
 import { initMotion, lockScroll, motion } from './motion';
 import { KOP_D, KOP_LIJNEN, KOP_VB } from './kop';
 import { KAART } from './kaart';
+import { Reserveer, openReserveer } from './Reserveer';
 
 const contact = {
   phoneDisplay: '056 60 44 64',
@@ -85,6 +86,7 @@ const IMG: Record<string, { w: number[]; alt: string }> = {
   interieur: { w: [480, 800, 1448], alt: 'Interieur met lederen stoelen, houten tafels en grote ramen naar het plein' },
   terras: { w: [480, 800, 1156], alt: 'Gasten op het terras in Het Pand onder de parasols' },
   toog: { w: [480, 800], alt: 'Houten toog met biertap en glazenrekken' },
+  'toog-l': { w: [800, 1086, 1600], alt: 'De houten toog van ’t Peerdeke met biertap, koffiemachine en rekken vol glazen' },
 };
 const srcSet = (n: string) => IMG[n].w.map((w) => `/img/${n}-${w}.webp ${w}w`).join(', ');
 const src = (n: string) => `/img/${n}-${IMG[n].w[IMG[n].w.length - 1]}.webp`;
@@ -217,9 +219,9 @@ function Header() {
       <div className={`scrim ${open ? 'is-on' : ''}`} onClick={() => setOpen(false)} aria-hidden="true" />
       <header className={cls}>
         <div className="hdr__in">
-          <a href={contact.phoneHref} className="hdr__call">
-            Bel ons
-          </a>
+          <button type="button" className="hdr__call" aria-haspopup="dialog" onClick={() => { setOpen(false); openReserveer(); }}>
+            Reserveer
+          </button>
           <a href="#top" className="hdr__logo" aria-label="’t Peerdeke, naar boven" onClick={() => setOpen(false)}>
             <Kop className="hdr__kop" />
             <span>’t Peerdeke</span>
@@ -244,7 +246,7 @@ function Header() {
             </ul>
             <div className="menu__aside">
               <div className="menu__img">
-                <Foto img="toog" mode="static" sizes="360px" decorative />
+                <Foto img="terras" mode="static" sizes="360px" decorative />
               </div>
               <div className="menu__meta">
                 <span className="eyebrow dim">Taverne in Het Pand</span>
@@ -321,10 +323,6 @@ function Hero({ vandaag }: { vandaag: number | null }) {
           <span className="hi__l">Terras</span>
           <span className="hi__v">In Het Pand</span>
         </div>
-        <a href={contact.phoneHref} className="pill">
-          <span>Bel ons</span>
-          <Arrow />
-        </a>
       </div>
     </section>
   );
@@ -380,6 +378,9 @@ function Aanbod() {
             Aanbod
           </p>
           <Split className="t-l">Koffie, pintje, honger.</Split>
+          <p className="p split__lead" data-reveal="">
+            ’t Peerdeke is een café-tearoom zoals je ze graag tegenkomt: gezellig, ongedwongen en midden in Het Pand in Waregem. Kom binnen voor een goeie koffie, een fris getapt pintje of iets lekkers als de honger opspeelt. Even op adem komen tijdens het winkelen of rustig bijpraten met vrienden, hier kan het allemaal.
+          </p>
         </div>
         <div className="split__bottom">
           {items.map(([t, p]) => (
@@ -487,15 +488,18 @@ function Kaart() {
   );
 }
 
-function Terras() {
+function Toog() {
   return (
-    <section className="full shade" aria-label="Terras">
-      <Foto img="terras" />
+    <section className="full full--toog" aria-label="Aan de toog">
+      <Foto img="toog-l" mobile="toog" />
       <div className="full__c">
         <p className="eyebrow" data-reveal="">
-          Terras
+          De toog
         </p>
-        <Split className="t-xl">Buiten zitten in Het Pand.</Split>
+        <Split className="t-xl">Aan de toog.</Split>
+        <p className="full__slogan" data-reveal="">
+          Vers getapt, met de glimlach erbij.
+        </p>
       </div>
     </section>
   );
@@ -513,6 +517,9 @@ function Troeven() {
             Goed om te weten
           </p>
           <Split className="t-l">Binnen, buiten, voor iedereen.</Split>
+          <p className="p split__lead" data-reveal="">
+            Binnen zit je warm en knus aan tafel, bij mooi weer lokt het terras. Of je nu alleen even binnenspringt, met het gezin komt of met een hele bende vrienden afspreekt: bij ons ben je altijd welkom, zonder poespas.
+          </p>
         </div>
         <div className="split__bottom">
           <div className="item" data-reveal="">
@@ -693,6 +700,12 @@ function Footer() {
       <div className="foot__bot">
         <span>© {new Date().getFullYear()} ’t Peerdeke · Taverne in Het Pand</span>
         <span>BTW BE 0000.000.000</span>
+        <span className="foot__credit">
+          Gebrouwen door{' '}
+          <a href="https://onlinedesign.be" target="_blank" rel="noopener">
+            onlinedesign.be
+          </a>
+        </span>
       </div>
     </footer>
   );
@@ -711,12 +724,13 @@ export default function App() {
         <Intro />
         <Aanbod />
         <Kaart />
-        <Terras />
+        <Toog />
         <Troeven />
         <Uren vandaag={vandaag} />
         <Locatie />
       </main>
       <Footer />
+      <Reserveer email={contact.email} phoneDisplay={contact.phoneDisplay} phoneHref={contact.phoneHref} uren={uren} />
     </>
   );
 }
