@@ -75,33 +75,58 @@ export function initMotion(): () => void {
     };
 
     if (pre) {
-      // 1) omtrek van de paardenkop tekent zich (stroke-dashoffset, pathLength = 1), 2) gedetailleerde vulling verschijnt, 3) naam veegt in, 4) alles veegt weg
-      const lijnen = pre.querySelectorAll('.pre__kop .kop__s');
-      const vlakken = pre.querySelectorAll('.pre__kop .kop__f');
+      // 1) de paardenkop wordt lijn per lijn getekend (oren, manen, kop, oog, halster, neus/mond, hals), als met een pen:
+      //    elke lijn eigen tempo, licht overlappend; daarna vult de kop zacht in.
+      // 2) Koffie en Pintje schuiven uit elkaar en maken plaats voor ’t Peerdeke (de oude v2-loader). 3) alles veegt weg.
+      const lijnen = Array.from(pre.querySelectorAll<SVGPathElement>('.pre__kop .kop__l path'));
+      const vlak = pre.querySelector('.pre__kop .kop__f');
       gsap.set(lijnen, { strokeDasharray: 1, strokeDashoffset: 1 });
-      gsap.set(vlakken, { fillOpacity: 0 });
-      gsap.set('.pre__naam span', { clipPath: 'inset(-20% 100% -20% 0%)' });
-      gsap.set('.pre__line', { autoAlpha: 0, y: 8 });
+      gsap.set(vlak, { fillOpacity: 0 });
       const tl = gsap.timeline();
-      tl.to(lijnen, { strokeDashoffset: 0, duration: 1.0, ease: 'power2.inOut' }, 0)
-        .to(vlakken, { fillOpacity: 1, duration: 0.5, ease: 'power1.out' }, 0.65)
-        .to(lijnen, { strokeOpacity: 0, duration: 0.3 }, 1.0)
-        .to('.pre__naam span', { clipPath: 'inset(-20% 0% -20% 0%)', duration: 0.6, ease: 'power2.inOut' }, 0.95)
-        .to('.pre__line', { autoAlpha: 0.55, y: 0, duration: 0.45, ease: 'power2.out' }, 1.15);
+      // pen-planning: vaste pseudo-willekeur zodat het elke keer even "menselijk" oogt
+      let seed = 7;
+      const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+      let t = 0;
+      let vorigeGroep = -1;
+      const plan = lijnen.map((el) => {
+        const l = parseFloat(el.dataset.l || '20');
+        const g = parseInt(el.dataset.g || '0', 10);
+        if (g !== vorigeGroep && vorigeGroep !== -1) t += 0.06; // korte adempauze bij een nieuw onderdeel
+        vorigeGroep = g;
+        const dur = (0.14 + 0.42 * Math.sqrt(l / 300)) * (0.8 + rnd() * 0.45);
+        const start = t;
+        t += dur * (0.28 + rnd() * 0.14);
+        return { el, start, dur };
+      });
+      const einde = Math.max(...plan.map((p) => p.start + p.dur), 0.01);
+      const k = 1.75 / einde; // hele tekening in ~1,75 s
+      const eases = ['power1.inOut', 'sine.inOut', 'power2.out', 'none'];
+      plan.forEach((p, i) => {
+        tl.to(p.el, { strokeDashoffset: 0, duration: p.dur * k, ease: eases[i % eases.length] }, p.start * k);
+      });
+      tl.to(vlak, { fillOpacity: 1, duration: 0.55, ease: 'power1.inOut' }, 1.5)
+        .from('.pre__half span', { yPercent: 110, duration: 0.7, ease: 'power3.out', stagger: 0.06 }, 0.85)
+        .from('.pre__half:first-child', { x: 20, duration: 1.0, ease: 'power3.inOut' }, 1.0)
+        .from('.pre__half:last-child', { x: -20, duration: 1.0, ease: 'power3.inOut' }, 1.0)
+        .to('.pre__mark', { width: 'auto', duration: 1.0, ease: 'power3.inOut' }, 1.0)
+        .from('.pre__mark span', { yPercent: -110, duration: 1.0, ease: 'power3.inOut' }, 1.1)
+        .from('.pre__line', { autoAlpha: 0, duration: 0.5 }, 1.2);
 
       let exited = false;
       const exit = () => {
         if (exited) return;
         exited = true;
-        gsap.timeline({ delay: 0.15 })
-          .add(done, 0.2)
-          .to(pre, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.75, ease: 'power3.inOut' }, 0)
+        gsap.timeline({ delay: 0.1 })
+          .to('.pre__half span, .pre__mark span, .pre__line', { yPercent: 110, duration: 0.45, ease: 'power3.in', stagger: 0.03 })
+          .to('.pre__kop', { autoAlpha: 0, y: -12, duration: 0.45, ease: 'power3.in' }, 0)
+          .add(done, '-=0.1')
+          .to(pre, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.75, ease: 'power3.inOut' }, '-=0.1')
           .set(pre, { display: 'none' });
       };
       const ready = () => tl.then(exit);
       if (document.readyState === 'complete') ready();
       else window.addEventListener('load', ready, { once: true });
-      window.setTimeout(exit, 5000); // failsafe
+      window.setTimeout(exit, 6000); // failsafe
     } else done();
 
     // Titels: woord per woord uit een masker

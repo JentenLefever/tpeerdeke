@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react';
 import { initMotion, lockScroll, motion } from './motion';
-import { KOP_D, KOP_VB } from './kop';
+import { KOP_D, KOP_LIJNEN, KOP_VB } from './kop';
 import { KAART } from './kaart';
 
 const contact = {
@@ -74,15 +74,15 @@ function Btn({ href, children, dark = false, ext = false }: { href: string; chil
   );
 }
 
-// Gegenereerde sfeerbeelden (WebP, meerdere breedtes). Geen echte foto's van de zaak.
+// Echte foto's van de zaak (WebP, meerdere breedtes).
 const IMG: Record<string, { w: number[]; alt: string }> = {
-  hero: { w: [480, 800, 1280], alt: 'Zonnig terras met houten bistrostoelen op een binnenplein' },
-  'hero-m': { w: [480, 720], alt: 'Zonnig terras met houten bistrostoelen op een binnenplein' },
-  pintje: { w: [480, 800, 864], alt: 'Vers getapt pintje op een houten tafel' },
-  interieur: { w: [480, 800, 864], alt: 'Gezellig interieur met houten toog en warm licht' },
-  koffie: { w: [480, 800, 1152], alt: 'Koffie met een koekje op een houten tafel' },
-  terras: { w: [480, 800, 1280], alt: 'Terras met twee pintjes, mensen in de zon op de achtergrond' },
-  toog: { w: [480, 800, 1152], alt: 'Koperen biertap en glazen op de toog' },
+  hero: { w: [480, 800, 1280, 1536], alt: 'Zonnig terras van ’t Peerdeke in Het Pand, vol gasten onder de parasols' },
+  'hero-m': { w: [480, 640], alt: 'Zonnig terras van ’t Peerdeke in Het Pand, vol gasten onder de parasols' },
+  uithangbord: { w: [480, 800, 1086], alt: 'Uithangbord van taverne ’t Peerdeke met de paardenkop' },
+  wafels: { w: [480, 800, 1086], alt: 'Twee Brusselse wafels met poedersuiker, vanille-ijs en slagroom' },
+  interieur: { w: [480, 800, 1448], alt: 'Interieur met lederen stoelen, houten tafels en grote ramen naar het plein' },
+  terras: { w: [480, 800, 1156], alt: 'Gasten op het terras in Het Pand onder de parasols' },
+  toog: { w: [480, 800], alt: 'Houten toog met biertap en glazenrekken' },
 };
 const srcSet = (n: string) => IMG[n].w.map((w) => `/img/${n}-${w}.webp ${w}w`).join(', ');
 const src = (n: string) => `/img/${n}-${IMG[n].w[IMG[n].w.length - 1]}.webp`;
@@ -109,12 +109,18 @@ function Foto({ img, mobile, sizes = '100vw', mode = 'parallax', shade = false, 
   );
 }
 
-/* Paardenkop uit het logo (gedetailleerd gevuld pad). Met draw=true komt er een omlijning bij voor de loader. */
+/* Paardenkop uit het logo, in currentColor. Met draw=true komen de lijnen erbij waarmee de loader de kop "tekent". */
 function Kop({ className, draw = false }: { className?: string; draw?: boolean }) {
   return (
     <svg className={`kop ${className ?? ''}`} viewBox={KOP_VB} aria-hidden="true" focusable="false">
       <path className="kop__f" d={KOP_D} fill="currentColor" fillRule="evenodd" />
-      {draw && <path className="kop__s" d={KOP_D} fill="none" stroke="currentColor" strokeWidth={0.9} strokeLinejoin="round" pathLength={1} />}
+      {draw && (
+        <g className="kop__l" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+          {KOP_LIJNEN.map((l, i) => (
+            <path key={i} d={l.d} strokeWidth={l.k === 'c' ? 2.4 : 1.15} pathLength={1} data-l={l.l} data-g={l.g} />
+          ))}
+        </g>
+      )}
     </svg>
   );
 }
@@ -124,11 +130,21 @@ function Preloader() {
     <div className="pre" aria-hidden="true">
       <div className="pre__in">
         <Kop className="pre__kop" draw />
-        <p className="pre__naam">
-          <span>’t Peerdeke</span>
-        </p>
-        <p className="pre__line eyebrow">Taverne · Het Pand · Waregem</p>
+        <div className="pre__row">
+          <div className="pre__half">
+            <span className="eyebrow">Koffie</span>
+          </div>
+          <div className="pre__mark">
+            <span className="t-s">’t Peerdeke</span>
+          </div>
+          <div className="pre__half">
+            <span className="eyebrow">Pintje</span>
+          </div>
+        </div>
       </div>
+      <p className="pre__line eyebrow">
+        <span style={{ display: 'block' }}>Het Pand · Waregem</span>
+      </p>
     </div>
   );
 }
@@ -331,7 +347,7 @@ function Intro() {
         </Btn>
       </div>
       <div className="intro__img">
-        <Foto img="koffie" mode="zoom" sizes="(max-width: 767px) 90vw, (max-width: 1024px) 60vw, 560px" />
+        <Foto img="uithangbord" mode="zoom" sizes="(max-width: 767px) 90vw, (max-width: 1024px) 60vw, 560px" />
       </div>
     </section>
   );
@@ -354,7 +370,7 @@ function Aanbod() {
   return (
     <section id="aanbod" className="split">
       <div className="split__img">
-        <Foto img="pintje" sizes="(max-width: 1024px) 100vw, 50vw" />
+        <Foto img="wafels" sizes="(max-width: 1024px) 100vw, 50vw" />
       </div>
       <div className="split__txt">
         <div className="split__top">
@@ -627,7 +643,7 @@ function Footer() {
     <footer className="foot">
       <div className="foot__brand">
         <Kop className="foot__kop" />
-        <span className="script">’t Peerdeke</span>
+        <span className="t-s">’t Peerdeke</span>
       </div>
       <div className="foot__top">
         <div>

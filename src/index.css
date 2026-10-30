@@ -13,7 +13,6 @@
   --pad: 2.5rem;
   --f1: 'Jost', 'Futura', 'Century Gothic', sans-serif;
   --f2: 'Albert Sans', 'Helvetica Neue', Arial, sans-serif;
-  --f3: 'Yellowtail', 'Brush Script MT', cursive;
   --goud: #c9973e;
   /* Fluid sizing zoals de referentie: alles schaalt mee met de viewport */
   font-size: calc(100vw / (1728 / 16));
@@ -105,27 +104,31 @@ a { color: inherit; text-decoration: none; }
 }
 .btn--dark { --btn-inv: var(--inkt); }
 
-/* ---------- Preloader: paardenkop tekent zich, dan de naam, dan wegvegen ---------- */
+/* ---------- Preloader: paardenkop wordt getekend, Koffie en Pintje schuiven open voor de naam, dan wegvegen ---------- */
 .pre {
-  position: fixed; inset: 0; z-index: 2000; background: var(--inkt); color: var(--goud); padding: 0 var(--pad);
+  position: fixed; inset: 0; z-index: 2000; background: var(--creme); color: var(--inkt); padding: 0 var(--pad);
   display: grid; place-items: center; clip-path: inset(0% 0% 0% 0%);
 }
 html:not(.anim) .pre { display: none; }
-/* Beginstand vóór GSAP (geen flits van de volledige tekening) */
-.anim .pre__kop .kop__s { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.anim .pre__kop .kop__l path { stroke-dasharray: 1; stroke-dashoffset: 1; }
 .anim .pre__kop .kop__f { fill-opacity: 0; }
-.anim .pre__naam span { clip-path: inset(-20% 100% -20% 0%); }
-.anim .pre__line { opacity: 0; }
-.pre__in { display: grid; justify-items: center; gap: 0.25em; }
-.pre__kop { width: 17em; height: auto; overflow: visible; }
-.pre__naam { margin: 0; font-family: var(--f3); font-size: 4.25em; line-height: 1.15; padding: 0 0.15em; }
-.pre__naam span { display: block; }
-.pre__line { color: var(--creme); opacity: 0.55; margin-top: 0.75em; }
-@media (max-width: 767px) { .pre__kop { width: 12.5em; } .pre__naam { font-size: 3.25em; } .pre__line { font-size: 0.75em; } }
+.pre__in { display: grid; justify-items: center; gap: 2.25em; width: 100%; }
+.pre__kop { width: min(15em, 100%); height: auto; overflow: visible; }
+.pre__row { display: flex; align-items: center; gap: 1.25em; }
+.pre__half { overflow: hidden; }
+.pre__half span { display: block; }
+.pre__mark { overflow: hidden; width: 4px; display: flex; justify-content: center; }
+.pre__mark span { display: block; white-space: nowrap; padding: 0 0.5em; }
+.pre__line { position: absolute; left: 50%; bottom: 2.5em; transform: translateX(-50%); white-space: nowrap; }
+@media (max-width: 767px) {
+  .pre__in { gap: 1.75em; }
+  .pre__kop { width: min(11.5em, 72vw); }
+  .pre__row { gap: 0.6em; }
+  .pre__row .eyebrow { font-size: 0.75em; }
+}
 
 /* Paardenkop (gedeeld) */
 .kop { display: block; overflow: visible; }
-.script { font-family: var(--f3); font-weight: 400; text-transform: none; letter-spacing: 0; }
 .sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 /* ---------- Header (zwevende balk) ---------- */
@@ -153,7 +156,7 @@ html:not(.anim) .pre { display: none; }
   display: flex; align-items: center; gap: 0.55em;
   font-family: var(--f1); text-transform: uppercase; letter-spacing: 0.18em; font-size: 1.125em; white-space: nowrap;
 }
-.hdr__kop { width: 2.1em; height: auto; color: var(--goud); flex: none; margin-top: -0.15em; }
+.hdr__kop { width: 2.1em; height: auto; color: currentColor; flex: none; margin-top: -0.15em; }
 .hdr__tog {
   height: 100%; padding: 0 1.25em; background: none; border: 0; cursor: pointer; color: inherit;
   display: flex; flex-direction: column; justify-content: center; gap: 0.3125em; min-width: 44px;
@@ -257,7 +260,7 @@ html:not(.anim) .pre { display: none; }
 .intro__q { max-width: 34em; display: grid; gap: 0.9em; }
 .intro__q .p { max-width: none; }
 .intro__q .p + .p { margin-top: 0; }
-.intro__img { position: relative; width: min(35em, 100%); aspect-ratio: 4 / 3; border-radius: 0.375em; overflow: hidden; margin-top: 2em; }
+.intro__img { position: relative; width: min(28em, 100%); aspect-ratio: 4 / 5; border-radius: 0.375em; overflow: hidden; margin-top: 2em; }
 @media (max-width: 1024px) { .intro { padding-block: 6em 5em; text-align: left; justify-items: start; gap: 1.75em; } }
 
 /* Split */
@@ -365,9 +368,9 @@ html:not(.anim) .pre { display: none; }
 
 /* Footer */
 .foot { background: var(--inkt); color: var(--creme); padding: 6em var(--pad) var(--pad); overflow: hidden; }
-.foot__brand { display: flex; align-items: center; gap: 1em; color: var(--goud); padding-bottom: 4em; }
+.foot__brand { display: flex; align-items: center; gap: 1em; color: currentColor; padding-bottom: 4em; }
 .foot__kop { width: 6em; height: auto; }
-.foot__brand .script { font-size: 2.75em; line-height: 1; }
+.foot__brand .t-s { line-height: 1; }
 .foot__top { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1.25em; padding-bottom: 6em; }
 .foot__top > div { display: grid; gap: 0.75em; align-content: start; font-size: 0.9375em; min-width: 0; overflow-wrap: anywhere; }
 .foot__top .eyebrow { opacity: 0.55; margin-bottom: 0.4em; }
@@ -380,7 +383,6 @@ html:not(.anim) .pre { display: none; }
   .foot__mark { font-size: 12vw; }
   .foot__brand { padding-bottom: 3em; }
   .foot__kop { width: 4.5em; }
-  .foot__brand .script { font-size: 2.25em; }
 }
 
 /* Zonder JS-animatie: alles meteen zichtbaar */
