@@ -75,16 +75,17 @@ export function initMotion(): () => void {
     };
 
     if (pre) {
-      // 1) paardenkop tekent zich (stroke-dashoffset, pathLength = 1), 2) vlakken vullen, 3) naam veegt in, 4) alles veegt weg
-      const lijnen = pre.querySelectorAll('.pre__kop .ln, .pre__kop .fl');
-      const vlakken = pre.querySelectorAll('.pre__kop .fl');
+      // 1) omtrek van de paardenkop tekent zich (stroke-dashoffset, pathLength = 1), 2) gedetailleerde vulling verschijnt, 3) naam veegt in, 4) alles veegt weg
+      const lijnen = pre.querySelectorAll('.pre__kop .kop__s');
+      const vlakken = pre.querySelectorAll('.pre__kop .kop__f');
       gsap.set(lijnen, { strokeDasharray: 1, strokeDashoffset: 1 });
       gsap.set(vlakken, { fillOpacity: 0 });
       gsap.set('.pre__naam span', { clipPath: 'inset(-20% 100% -20% 0%)' });
       gsap.set('.pre__line', { autoAlpha: 0, y: 8 });
       const tl = gsap.timeline();
-      tl.to(lijnen, { strokeDashoffset: 0, duration: 0.95, ease: 'power2.inOut', stagger: { amount: 0.25 } }, 0)
-        .to(vlakken, { fillOpacity: 1, duration: 0.45, ease: 'power1.out', stagger: 0.03 }, 0.7)
+      tl.to(lijnen, { strokeDashoffset: 0, duration: 1.0, ease: 'power2.inOut' }, 0)
+        .to(vlakken, { fillOpacity: 1, duration: 0.5, ease: 'power1.out' }, 0.65)
+        .to(lijnen, { strokeOpacity: 0, duration: 0.3 }, 1.0)
         .to('.pre__naam span', { clipPath: 'inset(-20% 0% -20% 0%)', duration: 0.6, ease: 'power2.inOut' }, 0.95)
         .to('.pre__line', { autoAlpha: 0.55, y: 0, duration: 0.45, ease: 'power2.out' }, 1.15);
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react';
 import { initMotion, lockScroll, motion } from './motion';
-import { KOP, KOP_VB } from './kop';
+import { KOP_D, KOP_VB } from './kop';
 import { KAART } from './kaart';
 
 const contact = {
@@ -109,17 +109,12 @@ function Foto({ img, mobile, sizes = '100vw', mode = 'parallax', shade = false, 
   );
 }
 
-/* Paardenkop uit het logo als lijntekening (sw = lijndikte in viewBox-eenheden, dikker voor kleine formaten) */
-function Kop({ className, sw = 9 }: { className?: string; sw?: number }) {
+/* Paardenkop uit het logo (gedetailleerd gevuld pad). Met draw=true komt er een omlijning bij voor de loader. */
+function Kop({ className, draw = false }: { className?: string; draw?: boolean }) {
   return (
-    <svg className={`kop ${className ?? ''}`} viewBox={KOP_VB} fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
-      {KOP.map((k, i) =>
-        k.e ? (
-          <ellipse key={i} className={k.t} cx={k.e[0]} cy={k.e[1]} rx={k.e[2]} ry={k.e[3]} fill="currentColor" pathLength={1} />
-        ) : (
-          <path key={i} className={k.t} d={k.d} fill={k.t === 'fl' ? 'currentColor' : 'none'} pathLength={1} />
-        ),
-      )}
+    <svg className={`kop ${className ?? ''}`} viewBox={KOP_VB} aria-hidden="true" focusable="false">
+      <path className="kop__f" d={KOP_D} fill="currentColor" fillRule="evenodd" />
+      {draw && <path className="kop__s" d={KOP_D} fill="none" stroke="currentColor" strokeWidth={0.9} strokeLinejoin="round" pathLength={1} />}
     </svg>
   );
 }
@@ -128,7 +123,7 @@ function Preloader() {
   return (
     <div className="pre" aria-hidden="true">
       <div className="pre__in">
-        <Kop className="pre__kop" sw={8} />
+        <Kop className="pre__kop" draw />
         <p className="pre__naam">
           <span>’t Peerdeke</span>
         </p>
@@ -208,7 +203,7 @@ function Header() {
             Bel ons
           </a>
           <a href="#top" className="hdr__logo" aria-label="’t Peerdeke, naar boven" onClick={() => setOpen(false)}>
-            <Kop className="hdr__kop" sw={26} />
+            <Kop className="hdr__kop" />
             <span>’t Peerdeke</span>
           </a>
           <button ref={togRef} type="button" className="hdr__tog" aria-expanded={open} aria-controls="menu" aria-label={open ? 'Menu sluiten' : 'Menu openen'} onClick={() => setOpen((o) => !o)}>
@@ -631,7 +626,7 @@ function Footer() {
   return (
     <footer className="foot">
       <div className="foot__brand">
-        <Kop className="foot__kop" sw={14} />
+        <Kop className="foot__kop" />
         <span className="script">’t Peerdeke</span>
       </div>
       <div className="foot__top">
