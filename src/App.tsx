@@ -79,8 +79,8 @@ const FB_URL = 'https://www.facebook.com/share/1GrMia19oQ/';
 
 // Echte foto's van de zaak (WebP, meerdere breedtes).
 const IMG: Record<string, { w: number[]; alt: string }> = {
-  hero: { w: [480, 800, 1280, 1536], alt: 'Zonnig terras van ’t Peerdeke in Het Pand, vol gasten onder de parasols' },
-  'hero-m': { w: [480, 640], alt: 'Zonnig terras van ’t Peerdeke in Het Pand, vol gasten onder de parasols' },
+  hero: { w: [480, 800, 1280, 1920], alt: 'Zonnig terras van ’t Peerdeke in Het Pand, vol gasten onder de parasols' },
+  'hero-m': { w: [480, 640, 828, 1080], alt: 'Zonnig terras van ’t Peerdeke in Het Pand, vol gasten onder de parasols' },
   uithangbord: { w: [480, 800, 1086], alt: 'Uithangbord van taverne ’t Peerdeke met de paardenkop' },
   wafels: { w: [480, 800, 1086], alt: 'Twee Brusselse wafels met poedersuiker, vanille-ijs en slagroom' },
   interieur: { w: [480, 800, 1448], alt: 'Interieur met lederen stoelen, houten tafels en grote ramen naar het plein' },
@@ -246,7 +246,7 @@ function Header() {
             </ul>
             <div className="menu__aside">
               <div className="menu__img">
-                <Foto img="terras" mode="static" sizes="360px" decorative />
+                <Foto img="interieur" mode="static" sizes="360px" decorative />
               </div>
               <div className="menu__meta">
                 <span className="eyebrow dim">Taverne in Het Pand</span>
