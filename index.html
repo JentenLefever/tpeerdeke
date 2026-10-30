@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="nl-BE">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>'t Peerdeke Waregem | Taverne in Het Pand</title>
+    <meta name="description" content="Taverne 't Peerdeke in Het Pand, Waregem. Voor een koffie, een vers getapt pintje of iets om je honger te stillen. Met terras. Pand 255-257, 8790 Waregem." />
+    <meta name="theme-color" content="#f6efe2" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="nl_BE" />
+    <meta property="og:site_name" content="'t Peerdeke" />
+    <meta property="og:title" content="'t Peerdeke Waregem | Taverne in Het Pand" />
+    <meta property="og:description" content="Koffie, een vers getapt pintje of iets om je honger te stillen. Taverne 't Peerdeke in Het Pand, Waregem." />
+    <meta property="og:image" content="https://t-peerdeke.vercel.app/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Zonnig terras van ’t Peerdeke in Het Pand, Waregem" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preload" as="image" type="image/webp" imagesrcset="/img/hero-m-480.webp 480w, /img/hero-m-640.webp 640w, /img/hero-m-828.webp 828w, /img/hero-m-1080.webp 1080w" imagesizes="100vw" media="(max-width: 767px)" />
+    <link rel="preload" as="image" type="image/webp" imagesrcset="/img/hero-480.webp 480w, /img/hero-800.webp 800w, /img/hero-1280.webp 1280w, /img/hero-1920.webp 1920w" imagesizes="100vw" media="(min-width: 768px)" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&family=Albert+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script defer src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+    <script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('anim')</script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": ["LocalBusiness", "Restaurant"],
+      "name": "'t Peerdeke",
+      "description": "Taverne in Het Pand, Waregem. Koffie, vers getapte pintjes en iets om je honger te stillen.",
+      "telephone": "+32 56 60 44 64",
+      "email": "vd.steve@hotmail.be",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Pand 255-257",
+        "postalCode": "8790",
+        "addressLocality": "Waregem",
+        "addressRegion": "West-Vlaanderen",
+        "addressCountry": "BE"
+      },
+      "openingHoursSpecification": [
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Wednesday", "Thursday", "Saturday"], "opens": "09:00", "closes": "21:00" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Friday", "opens": "09:00", "closes": "22:00" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Sunday", "opens": "10:00", "closes": "20:00" }
+      ],
+      "amenityFeature": [
+        { "@type": "LocationFeatureSpecification", "name": "Terras", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Rolstoeltoegankelijk", "value": true }
+      ],
+      "containedInPlace": { "@type": "Place", "name": "Het Pand Waregem" }
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
