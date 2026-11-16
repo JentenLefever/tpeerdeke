@@ -435,38 +435,38 @@ html.is-locked, html.is-locked body { overflow: hidden; }
   .res__knop { width: 100%; }
 }
 
-/* ---------- Kaart (#kaart): crème, inkt, fijne lijnen, tabs als pillen ---------- */
-.kl { --kl-lijn: rgba(18, 13, 10, 0.14); background: var(--wit); color: var(--inkt); padding-block: 9em 8em; border-top: 1px solid var(--kl-lijn); }
+/* ---------- Kaart (#kaart): dark background, white text, gold accents ---------- */
+.kl { --kl-lijn: rgba(255, 255, 255, 0.12); background: #0d0d0d; color: #ffffff; padding-block: 9em 8em; border-top: 1px solid var(--kl-lijn); }
 .kl__in { max-width: calc(72em + 2 * var(--pad)); margin-inline: auto; }
 .kl__head { text-align: center; display: grid; justify-items: center; gap: 1.5em; }
-.kl__eyebrow { margin: 0; display: flex; align-items: center; gap: 1.1em; font-size: 0.75em; letter-spacing: 0.24em; text-transform: uppercase; color: var(--terra); }
-.kl__eyebrow::before, .kl__eyebrow::after { content: ''; width: 3.5em; height: 1px; background: currentColor; opacity: 0.45; }
-.kl__titel { max-width: 16em; color: var(--bruin); text-wrap: balance; }
-.kl__note { margin: 0; font-size: 0.75em; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(18, 13, 10, 0.5); }
+.kl__eyebrow { margin: 0; display: flex; align-items: center; gap: 1.1em; font-size: 0.75em; letter-spacing: 0.24em; text-transform: uppercase; color: var(--goud); }
+.kl__eyebrow::before, .kl__eyebrow::after { content: ''; width: 3.5em; height: 1px; background: currentColor; opacity: 0.5; }
+.kl__titel { max-width: 16em; color: var(--goud); text-wrap: balance; }
+.kl__note { margin: 0; font-size: 0.75em; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5); }
 .kl__tabwrap { position: relative; margin-top: 4em; }
 .kl__tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.625em; }
 .kl__tab {
-  flex: none; cursor: pointer; background: transparent; border: 1px solid rgba(18, 13, 10, 0.22); border-radius: 999px;
+  flex: none; cursor: pointer; background: transparent; border: 1px solid rgba(201, 151, 62, 0.35); border-radius: 999px;
   padding: 0 1.5em; min-height: 44px; white-space: nowrap;
-  font: inherit; font-size: 0.8125em; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--inkt);
+  font: inherit; font-size: 0.8125em; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.85);
   transition: background-color 0.35s var(--ease), color 0.35s var(--ease), border-color 0.35s var(--ease);
 }
-.kl__tab.is-on { background: var(--inkt); border-color: var(--inkt); color: var(--creme); }
+.kl__tab.is-on { background: var(--goud); border-color: var(--goud); color: #0d0d0d; }
 @media (hover: hover) {
-  .kl__tab:not(.is-on):hover { border-color: var(--inkt); background: rgba(18, 13, 10, 0.05); }
+  .kl__tab:not(.is-on):hover { border-color: var(--goud); background: rgba(201, 151, 62, 0.12); color: #ffffff; }
 }
-.kl__tab:focus-visible { outline: 2px solid var(--terra); outline-offset: 3px; }
+.kl__tab:focus-visible { outline: 2px solid var(--goud); outline-offset: 3px; }
 .kl__panel { padding-top: 4em; outline: none; }
-.kl__panel:focus-visible { outline: 1px dashed rgba(181, 88, 59, 0.5); outline-offset: 1em; }
+.kl__panel:focus-visible { outline: 1px dashed rgba(201, 151, 62, 0.5); outline-offset: 1em; }
 .kl__groep + .kl__groep { margin-top: 4em; }
-.kl__groep-kop { margin: 0 0 1.75em; display: flex; align-items: center; gap: 1.25em; font: inherit; font-weight: 500; font-size: 0.75em; letter-spacing: 0.24em; text-transform: uppercase; color: var(--salie); }
+.kl__groep-kop { margin: 0 0 1.75em; display: flex; align-items: center; gap: 1.25em; font: inherit; font-weight: 500; font-size: 0.75em; letter-spacing: 0.24em; text-transform: uppercase; color: var(--goud); }
 .kl__groep-kop::before, .kl__groep-kop::after { content: ''; flex: 1; height: 1px; background: var(--kl-lijn); }
 .kl__lijst { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 4.5em; }
-.kl__item { padding: 1em 0; border-bottom: 1px solid rgba(18, 13, 10, 0.07); }
+.kl__item { padding: 1em 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
 .kl__r { display: flex; align-items: baseline; justify-content: space-between; gap: 1.5em; }
-.kl__n { font-size: 1.0625em; font-weight: 500; line-height: 1.3; min-width: 0; }
-.kl__p { flex: none; font-variant-numeric: tabular-nums; font-size: 0.9375em; font-weight: 400; color: var(--terra); letter-spacing: 0.02em; white-space: nowrap; }
-.kl__o { margin: 0.4em 0 0; font-size: 0.875em; line-height: 1.45; font-weight: 400; color: rgba(18, 13, 10, 0.55); max-width: 30em; }
+.kl__n { font-size: 1.0625em; font-weight: 500; line-height: 1.3; min-width: 0; color: #ffffff; }
+.kl__p { flex: none; font-variant-numeric: tabular-nums; font-size: 0.9375em; font-weight: 400; color: var(--goud); letter-spacing: 0.02em; white-space: nowrap; }
+.kl__o { margin: 0.4em 0 0; font-size: 0.875em; line-height: 1.45; font-weight: 400; color: rgba(255, 255, 255, 0.65); max-width: 30em; }
 @media (max-width: 1024px) {
   .kl { padding-block: 5em; }
   .kl__head { gap: 1.1em; }
@@ -481,11 +481,11 @@ html.is-locked, html.is-locked body { overflow: hidden; }
   /* Hint dat er nog tabs volgen: zachte fade aan de rand, verdwijnt op het einde */
   .kl__tabwrap::after {
     content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 3.5em; pointer-events: none;
-    background: linear-gradient(to right, rgba(255, 253, 249, 0), var(--wit) 85%); transition: opacity 0.3s;
+    background: linear-gradient(to right, rgba(13, 13, 13, 0), #0d0d0d 85%); transition: opacity 0.3s;
   }
   .kl__tabwrap:not(.is-start)::before {
     content: ''; position: absolute; z-index: 1; top: 0; left: 0; bottom: 0; width: 2.5em; pointer-events: none;
-    background: linear-gradient(to left, rgba(255, 253, 249, 0), var(--wit) 85%);
+    background: linear-gradient(to left, rgba(13, 13, 13, 0), #0d0d0d 85%);
   }
   .kl__tabwrap.is-end::after { opacity: 0; }
   .kl__panel { padding-top: 2.5em; }
